@@ -1747,9 +1747,9 @@
                     details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detailPrice * detail.quantity)})\n`;
                 });
             } else {
-                // Pastikan item.finalPrice adalah angka sebelum formatCurrency
-                const itemFinalPrice = typeof item.finalPrice === 'number' ? item.finalPrice : 0;
-                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(itemFinalPrice * item.quantity)})\n`;
+                // Pastikan item.price adalah angka sebelum formatCurrency
+                const itemPriceForEmail = typeof item.price === 'number' ? item.price : 0;
+                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(itemPriceForEmail * item.quantity)})\n`;
             }
         });
         return details;
