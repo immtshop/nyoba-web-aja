@@ -24,8 +24,8 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script type="text/javascript">
      (function() {
-        // Menggunakan Public Key yang Anda berikan: 7aaVlYJKN8iou8I14
-        emailjs.init("7aaVlYJKN8iou8I14"); 
+        // Ganti 'YOUR_PUBLIC_KEY' dengan Public Key EmailJS Anda
+        emailjs.init("7aaVlYJKN8iou8I14");
      })();
   </script>
   <style>
@@ -1110,7 +1110,7 @@
       bundleMabaDiscountedPrice: document.getElementById("bundle-maba-discounted-price"),
       bundleMabaSavingsMessage: document.getElementById("bundle-maba-savings-message"),
 
-      // Elemen untuk bundle Gue Anak Metal!
+      // Elements for Gue Anak Metal! bundle
       promoAnakMetalCard: document.getElementById("promo-anak-metal-card"),
       mainPromoCardAnakMetal: document.getElementById("main-promo-anak-metal-card"),
       bundlePromoAnakMetalModal: document.getElementById("bundle-promo-anak-metal-modal"),
@@ -1679,7 +1679,7 @@
       if (customerData.Pengiriman === "Dikirim ke Alamat") {
           dom.customerDataSummary.innerHTML += `
               <div class="text-xs text-gray-500 mt-2">
-                  <p>Mohon diperhatikan bahwa harga yang tertera belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian. Terima kasih atas pengertian Anda.<br><br>Pengiriman dilakukan dari Kampus Universitas Indonesia </p>
+                  <p>Mohon diperhatikan bahwa harga di atas belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian. Terima kasih atas pengertian Anda.<br><br>Pengiriman dilakukan dari Kampus Universitas Indonesia </p>
               </div>
           `;
       }
@@ -1740,28 +1740,12 @@
         let details = '';
         items.forEach(item => {
             if (item.isBundle) {
-                console.log('Memproses bundle:', item.name, 'Harga Final:', item.finalPrice);
                 details += `\n--- ${item.name} (${formatCurrency(item.finalPrice)}) ---\n`;
                 item.bundleDetails.forEach(detail => {
-                    // Log objek detail untuk memeriksa propertinya
-                    console.log('Item Detail Bundle:', detail.name, 'Harga:', detail.price, 'Kuantitas:', detail.quantity);
-
-                    // Memastikan harga adalah angka sebelum perkalian dan pemformatan
-                    const itemPrice = typeof detail.price === 'number' ? detail.price : 0;
-                    const itemQuantity = typeof detail.quantity === 'number' ? detail.quantity : 0;
-                    const calculatedPrice = itemPrice * itemQuantity;
-
-                    details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(calculatedPrice)})\n`;
+                    details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detail.price * detail.quantity)})\n`;
                 });
             } else {
-                // Log detail item reguler
-                console.log('Memproses item reguler:', item.name, 'Harga Final:', item.finalPrice, 'Kuantitas:', item.quantity);
-
-                const itemPrice = typeof item.finalPrice === 'number' ? item.finalPrice : 0;
-                const itemQuantity = typeof item.quantity === 'number' ? item.quantity : 0;
-                const calculatedPrice = itemPrice * itemQuantity;
-
-                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(calculatedPrice)})\n`;
+                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(item.finalPrice * item.quantity)})\n`;
             }
         });
         return details;
@@ -1849,8 +1833,8 @@
                     // Tambahkan parameter lain yang Anda definisikan di template EmailJS Anda
                 };
 
-                // Menggunakan Service ID dan Template ID yang Anda berikan
-                await emailjs.send('service_ltdkgp', 'template_pealc2t', emailParams);
+                // Ganti 'YOUR_SERVICE_ID' dan 'YOUR_TEMPLATE_ID' dengan ID EmailJS Anda
+                await emailjs.send('service_ltidkgp', 'template_pealc2t', emailParams);
                 console.log('Email sent successfully via EmailJS!');
             } catch (emailError) {
                 console.error('Failed to send email via EmailJS:', emailError);
