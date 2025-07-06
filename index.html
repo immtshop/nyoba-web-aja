@@ -674,6 +674,12 @@
       </span>
       <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama" required="" type="text"/>
      </label>
+     <label class="block">
+      <span class="text-sm font-medium text-gray-700">
+       Email*
+      </span>
+      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Email" required="" type="email"/>
+     </label>
      <label class="block" id="bordir-name-container" style="display: none;">
       <span class="text-sm font-medium text-gray-700">
        Nama untuk Bordir (Wajib diisi)
@@ -1181,17 +1187,17 @@
 
         const productCard = `
                     <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col transform hover:-translate-y-1 transition-transform duration-300" data-product-id="${
-                      product.id
-                    }">
-                        <img src="${product.image}" alt="${
-          product.name
-        }" class="w-full h-full object-cover pointer-events-none" onerror="this.onerror=null; this.src='assets/placeholder.png';">
-                        <div class="p-6 flex-grow flex flex-col pointer-events-none">
-                            <div class="flex-grow">
-                                <h3 class="text-xl font-bold text-gray-800 mb-2">${
-                                  product.name
-                                }</h3>
-                                <div class="flex items-baseline mb-4">
+                          product.id
+                        }">
+                            <img src="${product.image}" alt="${
+              product.name
+            }" class="w-full h-full object-cover pointer-events-none" onerror="this.onerror=null; this.src='assets/placeholder.png';">
+                            <div class="p-6 flex-grow flex flex-col pointer-events-none">
+                                <div class="flex-grow">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-2">${
+                                      product.name
+                                    }</h3>
+                                    <div class="flex items-baseline mb-4">
                                     ${displayStrikethroughPrice ? `<p class="text-lg font-semibold text-gray-500 strikethrough-price">${formatCurrency(displayStrikethroughPrice)}</p>` : ''}
                                     <p class="text-lg font-semibold text-indigo-600">${formatCurrency(
                                   displayPrice
@@ -1223,21 +1229,21 @@
           // If it's a bundle, display only the bundle name and its total price
           if (item.isBundle) {
               dom.cartItemsContainer.innerHTML += `
-                <div class="flex items-center justify-between py-4 border-b last:border-b-0">
-                    <div class="flex items-center gap-4">
-                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
-                        <div>
-                            <h4 class="font-semibold">${item.name}</h4>
-                            <p class="text-sm text-gray-500">${formatCurrency(item.finalPrice)}</p>
+                    <div class="flex items-center justify-between py-4 border-b last:border-b-0">
+                        <div class="flex items-center gap-4">
+                            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 rounded-lg object-cover">
+                            <div>
+                                <h4 class="font-semibold">${item.name}</h4>
+                                <p class="text-sm text-gray-500">${formatCurrency(item.finalPrice)}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 text-center">${item.quantity}</span>
-                        <button class="remove-from-cart-btn text-red-500 hover:text-red-700 p-1" data-cart-item-id="${item.cartItemId}">
-                            <i data-lucide="trash-2" class="w-6 h-6"></i>
-                        </button>
-                    </div>
-                </div>`;
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 text-center">${item.quantity}</span>
+                            <button class="remove-from-cart-btn text-red-500 hover:text-red-700 p-1" data-cart-item-id="${item.cartItemId}">
+                                <i data-lucide="trash-2" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>`;
           } else {
               // Determine image path based on product ID and selected option for regular items
               let itemImage = item.image; // Default to product's main image
@@ -1256,24 +1262,24 @@
               }
 
               dom.cartItemsContainer.innerHTML += `<div class="flex items-center justify-between py-4 border-b last:border-b-0"><div class="flex items-center gap-4"><img src="${
-                itemImage
-              }" alt="${
-                item.name
-              }" class="w-16 h-16 rounded-lg object-cover"><div><h4 class="font-semibold">${
-                item.name
-              } ${
-                item.size ? `(${item.size})` : ""
-              }${item.option ? ` - ${item.option}` : ""}</h4><p class="text-sm text-gray-500">${formatCurrency(
-                item.finalPrice
-              )}</p></div></div><div class="flex items-center gap-3"><div class="flex items-center border rounded-md"><button class="update-cart-quantity-btn p-2" data-cart-item-id="${
-                item.cartItemId
-              }" data-change="-1" ${item.quantity === 1 ? 'disabled' : ''}>-</button><span class="px-3 text-center">${
-                item.quantity
-              }</span><button class="update-cart-quantity-btn p-2" data-cart-item-id="${
-                item.cartItemId
-              }" data-change="1">+</button></div><button class="remove-from-cart-btn text-red-500 hover:text-red-700 p-1" data-cart-item-id="${
-                item.cartItemId
-              }"><i data-lucide="trash-2" class="w-6 h-6"></i></button></div></div>`;
+                    itemImage
+                  }" alt="${
+                    item.name
+                  }" class="w-16 h-16 rounded-lg object-cover"><div><h4 class="font-semibold">${
+                    item.name
+                  } ${
+                    item.size ? `(${item.size})` : ""
+                  }${item.option ? ` - ${item.option}` : ""}</h4><p class="text-sm text-gray-500">${formatCurrency(
+                    item.finalPrice
+                  )}</p></div></div><div class="flex items-center gap-3"><div class="flex items-center border rounded-md"><button class="update-cart-quantity-btn p-2" data-cart-item-id="${
+                    item.cartItemId
+                  }" data-change="-1" ${item.quantity === 1 ? 'disabled' : ''}>-</button><span class="px-3 text-center">${
+                    item.quantity
+                  }</span><button class="update-cart-quantity-btn p-2" data-cart-item-id="${
+                    item.cartItemId
+                  }" data-change="1">+</button></div><button class="remove-from-cart-btn text-red-500 hover:text-red-700 p-1" data-cart-item-id="${
+                    item.cartItemId
+                  }"><i data-lucide="trash-2" class="w-6 h-6"></i></button></div></div>`;
           }
         });
         dom.checkoutBtn.disabled = false;
@@ -1716,7 +1722,7 @@
         });
     };
 
-    // Function to submit order to Firestore
+    // Fungsi untuk mengirim pesanan ke Firestore
     const submitOrder = async () => {
         if (!paymentProofFile) {
             // Use custom modal instead of alert()
@@ -1763,8 +1769,12 @@
                 }
             });
 
+            // Generate a unique order ID
+            const orderId = db.collection("orders").doc().id; // Firestore generates a unique ID
+
             // Order data object to be stored in Firestore
             const orderData = {
+                orderId: orderId, // Add the generated order ID
                 customer: customerData, // Customer data from form
                 items: flattenedCart, // Detailed items in cart
                 totalAmount: totalAmountForFirestore, // Total payment from product details
@@ -1773,12 +1783,36 @@
             };
 
             // Add order data to the 'orders' collection in Firestore
-            await db.collection("orders").add(orderData);
+            await db.collection("orders").doc(orderId).set(orderData); // Set document with custom ID
 
             console.log("Data sent to Firestore successfully.");
             clearInterval(countdownInterval); // Stop countdown
             toggleModal(dom.paymentModal, false); // Close payment modal
             toggleModal(dom.successModal, true); // Display success modal
+
+            // Kirim email rekap pembelian
+            try {
+                const emailResponse = await fetch('https://nyoba-web-vyty.vercel.app/api/send-email', { // Ganti dengan URL endpoint Node.js Anda
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: customerData.Email,
+                        subject: `Konfirmasi Pesanan IMMt SHOP #${orderId}`, // Include order ID in subject
+                        orderData: orderData // Kirim seluruh data pesanan
+                    }),
+                });
+                const emailResult = await emailResponse.json();
+                if (emailResponse.ok) {
+                    console.log('Email sent successfully:', emailResult.message);
+                } else {
+                    console.error('Failed to send email:', emailResult.error);
+                }
+            } catch (emailError) {
+                console.error('Error sending email:', emailError);
+            }
+
 
             // Close success modal and reset cart after a few seconds
             setTimeout(() => {
