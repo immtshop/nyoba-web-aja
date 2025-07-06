@@ -1742,10 +1742,14 @@
             if (item.isBundle) {
                 details += `\n--- ${item.name} (${formatCurrency(item.finalPrice)}) ---\n`;
                 item.bundleDetails.forEach(detail => {
-                    details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detail.price * detail.quantity)})\n`;
+                    // Pastikan detail.price adalah angka sebelum formatCurrency
+                    const detailPrice = typeof detail.price === 'number' ? detail.price : 0;
+                    details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detailPrice * detail.quantity)})\n`;
                 });
             } else {
-                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(item.finalPrice * item.quantity)})\n`;
+                // Pastikan item.finalPrice adalah angka sebelum formatCurrency
+                const itemFinalPrice = typeof item.finalPrice === 'number' ? item.finalPrice : 0;
+                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(itemFinalPrice * item.quantity)})\n`;
             }
         });
         return details;
