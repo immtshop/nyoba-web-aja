@@ -24,8 +24,8 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script type="text/javascript">
      (function() {
-        // Ganti 'YOUR_PUBLIC_KEY' dengan Public Key EmailJS Anda
-        emailjs.init("7aaVlYJKN8iou8I14"); // Public Key Anda
+        // Menggunakan Public Key yang Anda berikan: 7aaVlYJKN8iou8I14
+        emailjs.init("7aaVlYJKN8iou8I14"); 
      })();
   </script>
   <style>
@@ -1849,7 +1849,7 @@
                     // Tambahkan parameter lain yang Anda definisikan di template EmailJS Anda
                 };
 
-                // Ganti 'YOUR_SERVICE_ID' dan 'YOUR_TEMPLATE_ID' dengan ID EmailJS Anda
+                // Menggunakan Service ID dan Template ID yang Anda berikan
                 await emailjs.send('service_ltdkgp', 'template_pealc2t', emailParams);
                 console.log('Email sent successfully via EmailJS!');
             } catch (emailError) {
