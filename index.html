@@ -38,6 +38,13 @@
         transition: opacity 0.3s ease-in-out;
         opacity: 0;
         pointer-events: none;
+        position: fixed; /* Added for modal overlay */
+        inset: 0; /* Added for modal overlay */
+        background-color: rgba(0, 0, 0, 0.5); /* Added for modal overlay */
+        display: flex; /* Added for modal overlay */
+        align-items: center; /* Added for modal overlay */
+        justify-content: center; /* Added for modal overlay */
+        z-index: 50; /* Ensure modal is on top */
         overflow-y: auto; /* Allow scrolling within the modal if content overflows */
       }
       .modal-overlay.visible {
@@ -48,7 +55,14 @@
         transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         transform: translateY(20px);
         opacity: 0;
+        background-color: white; /* Added for modal content */
+        border-radius: 0.75rem; /* Tailwind 'rounded-xl' */
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Tailwind 'shadow-2xl' */
+        width: 100%; /* Default width */
+        max-width: 32rem; /* Tailwind 'max-w-lg' */
+        max-height: 90vh; /* Limit height */
         overflow-y: auto; /* Added for scroll fix */
+        position: relative; /* For close button positioning */
       }
       .modal-overlay.visible .modal-content {
         transform: translateY(0);
@@ -63,24 +77,7 @@
         background-image: url("assets/bg-shop.jpg"); /* Reverted to original asset path */
         background-size: cover; /* Kembali ke ukuran cover */
         background-position: center; /* Kembali ke posisi tengah */
-        /* Hapus tambahan responsivitas gambar latar belakang */
-        /* background-repeat: no-repeat; */
-        /* background-attachment: scroll; */
       }
-      /* Hapus media query untuk responsivitas gambar latar belakang */
-      /* @media (min-width: 768px) {
-        .hero-section {
-          background-size: 100% auto;
-          background-position: center;
-        }
-      }
-      @media (max-width: 767px) {
-        .hero-section {
-          background-size: cover;
-          background-position: center center;
-        }
-      } */
-
       .hero-section::before {
         content: "";
         position: absolute;
@@ -283,9 +280,8 @@
         }
       }
 
-      /* New styles for Early Bird Bundle modal images */
-      #bundle-promo-maba-modal .modal-content .grid.grid-cols-2 img,
-      #bundle-promo-anak-metal-modal .modal-content .grid.grid-cols-2 img {
+      /* New styles for Early Bundle page images (no longer a modal but general style) */
+      .bundle-page-images .grid.grid-cols-2 img {
           width: 100%; /* Ensure images take full width of their grid column */
           height: 150px; /* Set a fixed height for consistency */
           object-fit: contain; /* Ensure the whole image is visible without cropping */
@@ -324,7 +320,7 @@
               width: fit-content; /* Allow flex container to be as wide as its content */
           }
           /* Apply flex-shrink-0 to individual promo cards to prevent them from shrinking */
-          #main-promo-card, #main-promo-anak-metal-card {
+          #main-promo-card {
               flex-shrink: 0;
               width: 85vw; /* Make each card take up 85% of viewport width */
               max-width: 320px; /* Optional: max width for very large phones in portrait */
@@ -334,7 +330,7 @@
           #main-promo-card:first-child {
               margin-left: 1rem; /* Ensure the first card has padding from the left edge */
           }
-          #main-promo-anak-metal-card:last-child {
+          #main-promo-card:last-child {
               margin-right: 1rem; /* Ensure the last card has padding from the right edge */
           }
       }
@@ -345,6 +341,36 @@
           color: #ef4444; /* Red color for strikethrough price */
           margin-right: 0.5rem;
           font-size: 0.9em; /* Slightly smaller than current price */
+      }
+
+      /* Styles for image zoom */
+      .zoom-container {
+          position: relative;
+          overflow: hidden;
+          cursor: zoom-in;
+      }
+
+      .zoom-container.zoomed {
+          cursor: zoom-out;
+      }
+
+      .zoom-image {
+          transition: transform 0.3s ease-out;
+          transform-origin: 0 0; /* Important for consistent zoom behavior */
+      }
+
+      /* Custom alert modal */
+      .custom-alert-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
       }
   </style>
  </head>
@@ -359,137 +385,22 @@
      Penawaran Spesial IMMt SHOP!
     </h2>
     <div class="product-overview-grid">
-     <div class="product-overview-item" id="promo-maba-card" data-promo-id="maba">
-      <img alt="Promo Tahun Ajaran Baru" class="w-full h-40 object-cover" src="assets/promo-maba-1.jpg"/>
+     <div class="product-overview-item" id="promo-simak-card" data-promo-id="simak-bundle">
+      <img alt="Promo SIMAK EDITION!!" class="w-full h-40 object-cover" src="assets/promo-simak-1.jpg"/>
       <h3 class="product-overview-title">
-       Early Bird Tahun Ajaran Baru!
+       SIMAK EDITION!!
       </h3>
       <p class="product-overview-description">
-       Dapatkan diskon khusus untuk tahun ajaran baru!
+       Dapatkan diskon khusus untuk SIMAK EDITION!!
       </p>
       <p class="product-overview-price">
       </p>
-     </div>
-     <div class="product-overview-item" id="promo-anak-metal-card" data-promo-id="anak-metal">
-        <img alt="Promo Gue Anak Metal" class="w-full h-40 object-cover" src="assets/promo-anak-metal-1.jpg"/>
-        <h3 class="product-overview-title">
-         Gue Anak Metal!
-        </h3>
-        <p class="product-overview-description">
-         Tunjukkan identitasmu sebagai anak metal sejati!
-        </p>
-        <p class="product-overview-price">
-        </p>
      </div>
     </div>
    </div>
   </div>
 
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-promo-maba-modal">
-    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full overflow-scroll flex flex-col md:flex-row">
-        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <img src="assets/jaslab-1.jpg" alt="Jaslab" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/size-chart-a.jpg" alt="Jaslab" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/workshirt-kp-1.jpg" alt="Workshirt KP" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/size-chart-b.jpg" alt="size chart workshirt kp" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/gamtek-1.jpg" alt="Paket Alat Gamtek" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/keychain-immt-1.jpg" alt="Keychain IMMt 1" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/keychain-immt-2.jpg" alt="Keychain IMMt 2" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/keychain-makara-1.jpg" alt="Keychain Makara UI" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/sticker-mobil-1.jpg" alt="Sticker Mobil Fakultas Teknik" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/sticker-mobil-2.jpg" alt="Sticker Mobil Metalurgi" class="w-full h-auto object-contain rounded-lg shadow-md">
-            </div>
-        </div>
-        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">Early Bird Tahun Ajaran Baru Bundle!</h2>
-                <p class="text-gray-600 mb-6">
-                    Dapatkan Jaslab, Workshirt Kerja Praktik, Paket Alat Gamtek, kedua jenis Keychain IMMt (bordir dan akrilik), Keychain Makara, dan kedua Sticker Mobil dengan harga spesial!
-                    Pilihan terbaik untuk memulai petualangan Anda di Metalurgi.
-                </p>
-                <div class="mb-4">
-                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Jaslab:</p>
-                    <div id="bundle-maba-jaslab-size-options" class="flex flex-wrap gap-3 mb-2">
-                        <!-- Ukuran Jaslab akan dirender di sini -->
-                    </div>
-                    <div class="flex items-baseline mb-2">
-                        <p id="bundle-maba-jaslab-strikethrough-price" class="text-base font-semibold text-gray-500 strikethrough-price" style="display: none;"></p>
-                        <p id="bundle-maba-jaslab-price" class="text-lg font-semibold text-indigo-600">Rp 0</p>
-                    </div>
-                </div>
-                <div class="mt-4 mb-6">
-                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Workshirt Kerja Praktik:</p>
-                    <div id="bundle-maba-workshirt-kp-size-options" class="flex flex-wrap gap-3 mb-2">
-                        <!-- Ukuran Workshirt KP akan dirender di sini -->
-                    </div>
-                    <div class="flex items-baseline mb-2">
-                        <p id="bundle-maba-workshirt-kp-strikethrough-price" class="text-base font-semibold text-gray-500 strikethrough-price" style="display: none;"></p>
-                        <p id="bundle-maba-workshirt-kp-price" class="text-lg font-semibold text-indigo-600">Rp 0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-auto pt-4 border-t">
-                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-maba-normal-price" class="text-red-500">Rp 0</s></p>
-                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-maba-discounted-price">Rp 0</span></p>
-                <p class="text-sm text-green-700 mt-1" id="bundle-maba-savings-message">Pilih ukuran untuk melihat penghematan!</p>
-                <button id="add-bundle-maba-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
-                    Tambahkan Bundle ke Keranjang
-                </button>
-            </div>
-        </div>
-        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-promo-maba-modal">
-            <i class="w-6 h-6" data-lucide="x"></i>
-        </button>
-    </div>
-  </div>
-
-  <!-- New Bundle Promo Modal - Gue Anak Metal! -->
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-promo-anak-metal-modal">
-    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full overflow-scroll flex flex-col md:flex-row">
-        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
-            <div class="grid grid-cols-2 gap-4">
-                <img src="assets/jaslab-1.jpg" alt="Jaslab" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/size-chart-a.jpg" alt="Jaslab" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/topi-immt-1.jpg" alt="Topi IMMt" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/keychain-immt-1.jpg" alt="Keychain IMMt 1" class="w-full h-auto object-contain rounded-lg shadow-md">
-                <img src="assets/keychain-immt-2.jpg" alt="Keychain IMMt 2" class="w-full h-auto object-contain rounded-lg shadow-md">
-            </div>
-        </div>
-        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-2">Gue Anak Metal! Bundle</h2>
-                <p class="text-gray-600 mb-6">
-                    Dapatkan Jaslab, Topi Metalurgi, dan kedua jenis Keychain IMMt dengan harga spesial!
-                    Tunjukkan identitasmu sebagai anak metal sejati!
-                </p>
-                <div class="mb-4">
-                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Jaslab:</p>
-                    <div id="bundle-anak-metal-jaslab-size-options" class="flex flex-wrap gap-3 mb-2">
-                        <!-- Ukuran Jaslab akan dirender di sini -->
-                    </div>
-                    <div class="flex items-baseline mb-2">
-                        <p id="bundle-anak-metal-jaslab-strikethrough-price" class="text-base font-semibold text-gray-500 strikethrough-price" style="display: none;"></p>
-                        <p id="bundle-anak-metal-jaslab-price" class="text-lg font-semibold text-indigo-600">Rp 0</p>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-auto pt-4 border-t">
-                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-anak-metal-normal-price" class="text-red-500">Rp 0</s></p>
-                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-anak-metal-discounted-price">Rp 0</span></p>
-                <p class="text-sm text-green-700 mt-1" id="bundle-anak-metal-savings-message">Pilih ukuran untuk melihat penghematan!</p>
-                <button id="add-bundle-anak-metal-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
-                    Tambahkan Bundle ke Keranjang
-                </button>
-            </div>
-        </div>
-        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-promo-anak-metal-modal">
-            <i class="w-6 h-6" data-lucide="x"></i>
-        </button>
-    </div>
-  </div>
+  <!-- Removed the bundle promo modal from here -->
 
 
   <header class="shopee-header sticky top-0 z-40">
@@ -542,14 +453,10 @@
    <section class="container mx-auto mt-8 mb-12 px-4">
     <div class="overflow-x-auto whitespace-nowrap scrollbar-hide">
      <div class="flex space-x-4 justify-center">
-      <div class="min-w-[300px] bg-green-100 text-center rounded-lg p-4 text-green-900 font-bold" id="main-promo-card" data-promo-id="maba">
-       <img class="mb-2 rounded w-full h-40 object-cover aspect-video" src="assets/promo-maba-2.jpg" alt="Promo Early Bird Tahun Ajaran Baru"/>
-       Early Bird Tahun Ajaran Baru!
+      <div class="min-w-[300px] bg-green-100 text-center rounded-lg p-4 text-green-900 font-bold" id="main-promo-card" data-promo-id="simak-bundle">
+       <img class="mb-2 rounded w-full h-40 object-cover aspect-video" src="assets/promo-simak-2.jpg" alt="Promo SIMAK EDITION!!"/>
+       SIMAK EDITION!!
       </div>
-      <div class="min-w-[300px] bg-green-100 text-center rounded-lg p-4 text-green-900 font-bold" id="main-promo-anak-metal-card" data-promo-id="anak-metal">
-        <img class="mb-2 rounded w-full h-40 object-cover aspect-video" src="assets/promo-anak-metal-2.jpg" alt="Promo Gue Anak Metal!"/>
-        Gue Anak Metal!
-       </div>
      </div>
     </div>
    </section>
@@ -615,236 +522,9 @@
     </div>
    </div>
   </div>
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="product-detail-modal">
-   <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full overflow-scroll flex flex-col md:flex-row">
-    <div class="w-full md:w-1/2 p-4 flex flex-col">
-     <div class="relative">
-      <img alt="Detail Produk" class="w-full h-96 object-contain rounded-lg" id="main-product-image" src=""/>
-      <button class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full shadow-md hover:bg-white" id="prev-image-btn">
-       <i data-lucide="chevron-left">
-       </i>
-      </button>
-      <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full shadow-md hover:bg-white" id="next-image-btn">
-       <i data-lucide="chevron-right">
-       </i>
-      </i
-      </button>
-     </div>
-     <div class="flex gap-2 mt-4 justify-center" id="thumbnail-container">
-      </div>
-    </div>
-    <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
-     <div>
-      <h2 class="text-3xl font-bold text-gray-900" id="detail-product-name">
-      </h2>
-      <p class="text-gray-600 text-sm mt-2 mb-4" id="detail-product-description"></p>
-      <!-- Display normal price and strikethrough price here -->
-      <div class="flex items-baseline my-4">
-          <p class="text-xl font-semibold text-gray-500 strikethrough-price" id="detail-normal-price" style="display: none;"></p>
-          <p class="text-2xl font-semibold text-indigo-600" id="detail-product-price"></p>
-      </div>
-      <div class="mt-4" id="detail-size-container">
-       <p class="font-semibold text-gray-800 mb-2">
-        Pilih Ukuran:
-       </p>
-       <div class="flex flex-wrap gap-3" id="detail-size-options">
-        </div>
-      </div>
-      <div class="mt-4" id="detail-option-container" style="display:none;">
-        <p class="font-semibold text-gray-800 mb-2" id="detail-option-label">Pilih Opsi:</p>
-        <div class="flex flex-wrap gap-3" id="detail-option-options">
-        </div>
-      </div>
-     </div>
-     <div class="mt-6" id="detail-action-container">
-      </div>
-    </div>
-    <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="product-detail-modal">
-     <i class="w-6 h-6" data-lucide="x">
-     </i>
-    </button>
-   </div>
-  </div>
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="customer-data-modal">
-   <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh]">
-    <div class="flex items-center justify-between p-5 border-b">
-     <h2 class="text-2xl font-bold">
-      Data Diri &amp; Pengiriman
-     </h2>
-     <button class="close-modal-btn p-1 rounded-full hover:bg-gray-200" data-modal-id="customer-data-modal">
-      <i class="w-6 h-6" data-lucide="x">
-      </i>
-     </button>
-    </div>
-    <form class="p-5 space-y-6 overflow-y-auto" id="customer-form">
-     <label class="block">
-      <span class="text-sm font-medium text-gray-700">
-       Nama Lengkap*
-      </span>
-      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama" required="" type="text"/>
-     </label>
-     <label class="block">
-      <span class="text-sm font-medium text-gray-700">
-       Email*
-      </span>
-      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Email" required="" type="email"/>
-     </label>
-     <label class="block" id="bordir-name-container" style="display: none;">
-      <span class="text-sm font-medium text-gray-700">
-       Nama untuk Bordir (Wajib diisi)
-      </span>
-      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama untuk Bordir" type="text" />
-     </label>
-     <label class="block">
-      <span class="text-sm font-medium text-gray-700">
-       ID Line / No. Whatsapp*
-      </span>
-      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kontak" required="" type="text"/>
-     </label>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       Angkatan*
-      </label>
-      <div class="mt-2 space-y-2">
-       <div class="flex items-center">
-        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2022"/>
-        <label class="ml-3 text-sm text-gray-700">
-         2022
-        </label>
-       </div>
-       <div class="flex items-center">
-        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2023"/>
-        <label class="ml-3 text-sm text-gray-700">
-         2023
-        </label>
-       </div>
-       <div class="flex items-center">
-        <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2024"/>
-        <label class="ml-3 text-sm text-gray-700">
-         2024
-        </label>
-       </div>
-       <div class="flex items-center">
-        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2025"/>
-        <label class="ml-3 text-sm text-gray-700">
-         2025
-        </label>
-       </div>
-       <div class="flex items-center">
-        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="Non Civitas"/>
-        <label class="ml-3 text-sm text-gray-700">
-         Non Civitas
-        </label>
-       </div>
-      </div>
-     </div>
-     <div>
-      <label class="block text-sm font-medium text-gray-700">
-       Opsi Pengambilan Barang*
-      </label>
-      <div class="mt-2 space-y-2">
-       <div class="flex items-center">
-        <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Ambil di lingkungan FTUI" id="pickup-option"/>
-        <label class="ml-3 text-sm text-gray-700">
-         Ambil di lingkungan FTUI
-        </label>
-       </div>
-       <div class="flex items-center">
-        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Dikirim ke Alamat" id="delivery-option"/>
-        <label class="ml-3 text-sm text-gray-700">
-         Kirim ke Alamat
-        </label>
-       </div>
-      </div>
-      <div id="address-input-container" class="mt-4" style="display: none;">
-        <label class="block">
-          <span class="text-sm font-medium text-gray-700">Alamat Pengiriman Lengkap*</span>
-          <textarea class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Alamat Pengiriman" rows="3"></textarea>
-        </label>
-        <label class="block mt-4">
-          <span class="text-sm font-medium text-gray-700">Provinsi*</span>
-          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Provinsi" type="text"/>
-        </label>
-        <label class="block mt-4">
-          <span class="text-sm font-medium text-gray-700">Kota/Kabupaten*</span>
-          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kota/Kabupaten" type="text"/>
-        </label>
-        <label class="block mt-4">
-          <span class="text-sm font-medium text-gray-700">Kode Pos*</span>
-          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kode Pos" type="text"/>
-        </label>
-        <!-- Ongkos kirim disclaimer -->
-        <p class="text-sm text-gray-500 mt-4">
-            Mohon diperhatikan bahwa harga yang tertera belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian.
-        </p>
-      </div>
-     </div>
-     <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" type="submit">
-      Lanjutkan ke Pembayaran
-     </button>
-    </form>
-   </div>
-  </div>
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="payment-modal">
-   <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh]">
-    <div class="flex items-center justify-between p-5 border-b">
-     <h2 class="text-2xl font-bold">
-      Konfirmasi &amp; Pembayaran
-     </h2>
-     <button class="close-modal-btn p-1 rounded-full hover:bg-gray-200" data-modal-id="payment-modal">
-      <i class="w-6 h-6" data-lucide="x">
-      </i>
-     </button>
-    </div>
-    <div class="md:grid md:grid-cols-2">
-     <div class="p-6 border-b md:border-b-0 md:border-r">
-      <h3 class="text-xl font-bold mb-4">
-       Rincian Pesanan
-      </h3>
-      <div class="max-h-60 overflow-y-auto pr-2 space-y-3" id="order-summary-items">
-      </div>
-      <div class="mt-4 pt-4 border-t font-bold flex justify-between">
-       <span>
-        Total Pembayaran:
-       </span>
-       <span id="order-summary-total">
-       </span>
-      </div>
-      <h3 class="text-xl font-bold mt-6 mb-4">
-       Data Pemesan
-      </h3>
-      <div class="text-sm space-y-2" id="customer-data-summary">
-      </div>
-     </div>
-     <div class="p-6 text-center flex flex-col items-center justify-center">
-      <h3 class="text-xl font-bold">
-       Pindai untuk Membayar
-      </h3>
-      <p class="text-sm text-gray-500 mt-1">
-       Gunakan aplikasi pembayaran apa pun yang mendukung QRIS.<br><br>Metode Lainnya :<br>Transfer Bank BCA 3420733657 a/n Dafa Rifaqi Firdarezki
-      </p>
-      <div class="bg-gray-200 my-4 w-64 h-64 flex items-center justify-center rounded-md">
-       <img src="assets/qris.jpg" alt="Kode QRIS" class="w-full h-full object-contain rounded-md" onerror="this.onerror=null; this.src='https://placehold.co/256x256?text=QRIS';"/>
-      </div>
-      <div class="bg-red-100 text-red-700 font-bold p-3 rounded-lg">
-       <span>
-        Batas Waktu Pembayaran:
-       </span>
-       <span class="text-2xl font-mono ml-2" id="countdown-timer">
-        05:00
-       </span>
-      </div>
-      <div class="mt-4 w-full max-w-xs" style="display: none;">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Pembayaran (Wajib)</label>
-        <input id="payment-proof" type="file" accept="image/*" class="block w-full text-sm border border-gray-300 rounded-md p-2" />
-      </div>
-      <button class="w-full max-w-xs mt-4 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 disabled:opacity-50" id="finish-payment-btn">
-       Saya Sudah Membayar
-      </button>
-     </div>
-    </div>
-   </div>
-  </div>
+  <!-- Removed product-detail-modal from here -->
+  <!-- Removed customer-data-modal from here -->
+  <!-- Removed payment-modal from here -->
   <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="success-modal">
    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
     <div class="mx-auto">
@@ -863,31 +543,38 @@
     </p>
    </div>
   </div>
+  <!-- Custom Alert Modal Structure -->
+  <div class="custom-alert-overlay hidden" id="custom-alert-modal">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
+        <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+        <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
+    </div>
+  </div>
   <script>
    document.addEventListener("DOMContentLoaded", () => {
     // Firebase Configuration Keys
     const firebaseConfig = {
-      apiKey: "AIzaSyDXu2AWFtpRcGO6HfOOXrHnaPCBjmoik_U",
-      authDomain: "nyoba-web-aja-yak.firebaseapp.com",
-      projectId: "nyoba-web-aja-yak",
-      storageBucket: "nyoba-web-aja-yak.firebasestorage.app",
-      messagingSenderId: "979768037931",
-      appId: "1:979768037931:web:19db19fc3ecd814a4a906e",
-      measurementId: "G-RQM60MLY0M"
+      apiKey: "AIzaSyCCRGTeq4NN25eV31HuzeGqU8s3dhXIv5w",
+      authDomain: "nyoba-doang-fd3e9.firebaseapp.com",
+      projectId: "nyoba-doang-fd3e9",
+      storageBucket: "nyoba-doang-fd3e9.firebasestorage.app",
+      messagingSenderId: "825164926042",
+      appId: "1:825164926042:web:5b9b7ef8fc04a2acebdc63",
+      measurementId: "G-MFMLDSBK26"
     };
 
     // Cloudinary Configuration Keys (REPLACE WITH YOUR OWN KEYS!)
     // Anda perlu membuat akun Cloudinary GRATIS dan mendapatkan ini.
     // Upload Preset harus diatur sebagai "Unsigned" di dashboard Cloudinary Anda.
     // Untuk menyembunyikan Cloudinary, atur ke string kosong.
-    const CLOUDINARY_CLOUD_NAME = ''; // Contoh: 'my-shop-cloud'
-    const CLOUDINARY_UPLOAD_PRESET = ''; // Contoh: 'unsigned_uploads'
+    const CLOUDINARY_CLOUD_NAME = 'dmqznikm'; // Contoh: 'my-shop-cloud'
+    const CLOUDINARY_UPLOAD_PRESET = 'bukti_pembayaran_upload'; // Contoh: 'unsigned_uploads'
 
 
     // Initialize Firebase using global namespace (only Firestore is relevant)
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    // Firebase Storage is no longer directly used
 
 
     const allProducts = [
@@ -899,7 +586,7 @@
         description: "Jas Laboratorium berkualitas tinggi, dengan berbasis bahan american drill yang ketika dipakai akan terasa nyaman dan tidak panas. Wajib bagi setiap mahasiswa Metalurgi pada saat praktikum. Dilengkapi dengan bordir nama pada sisi kanan dan logo IMMt pada sisi kiri dada.",
         image: "assets/jaslab-1.jpg",
         hasSizes: true,
-        sizes: ["S", "M", "L", "XL", "XXL"], // Added more sizes
+        sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], // Added more sizes
         detailImages: [
           "assets/jaslab-1.jpg",
           "assets/jaslab-2.jpg",
@@ -921,7 +608,7 @@
           "assets/workshirt-kp-2.jpg",
           "assets/size-chart-b.jpg",
         ],
-        inBundle: true,
+        inBundle: false, // Not in SIMAK bundle
       },
       {
         id: 3,
@@ -936,7 +623,7 @@
           "assets/workshirt-metal-2.jpg",
           "assets/size-chart-c.jpg",
         ],
-        inBundle: false, // Not in existing bundles
+        inBundle: false, // Not in SIMAK bundle
       },
       {
         id: 4,
@@ -948,9 +635,8 @@
         detailImages: [
           "assets/sticker-pack-1.jpg",
           "assets/sticker-pack-2.jpg",
-          "assets/sticker-pack-3.jpg",
         ],
-        inBundle: false, // Not in existing bundles
+        inBundle: true, // In SIMAK bundle
       },
       {
         id: 5,
@@ -965,7 +651,7 @@
           "assets/sticker-mobil-1.jpg",
           "assets/sticker-mobil-2.jpg",
         ],
-        inBundle: true,
+        inBundle: false, // Not in SIMAK bundle
       },
       {
         id: 6,
@@ -980,7 +666,7 @@
           "assets/keychain-immt-1.jpg",
           "assets/keychain-immt-2.jpg",
         ],
-        inBundle: true,
+        inBundle: false, // Not in SIMAK bundle
       },
       {
         id: 7,
@@ -991,8 +677,9 @@
         hasSizes: false,
         detailImages: [
           "assets/keychain-makara-1.jpg",
+          "assets/keychain-makara-2.jpg",
         ],
-        inBundle: true,
+        inBundle: false, // Not in SIMAK bundle
       },
       {
         id: 8,
@@ -1015,7 +702,7 @@
           "assets/gamtek-11.jpg",
           "assets/gamtek-12.jpg",
         ],
-        inBundle: true,
+        inBundle: false, // Not in SIMAK bundle
       },
       { // New Product: Topi
         id: 9,
@@ -1026,111 +713,84 @@
         hasSizes: false,
         detailImages: [
           "assets/topi-immt-1.jpg",
+          "assets/topi-immt-2.jpg",
         ],
-        inBundle: true,
+        inBundle: true, // In SIMAK bundle
       },
+      // Definisi Bundle Baru
+      {
+        id: 'simak-bundle', // ID unik untuk bundle ini
+        name: 'SIMAK EDITION!! Bundle',
+        image: 'assets/promo-simak-1.jpg', // Gambar utama untuk bundle
+        description: 'Dapatkan Jaslab, Sticker (3pcs), dan Topi Metalurgi dengan harga spesial! Pilihan terbaik untuk persiapan SIMAK!',
+        isBundle: true,
+        bundleDiscount: 15000, // Diskon spesifik untuk bundle ini
+        bundleItems: [ // Daftar item yang termasuk dalam bundle
+            { productId: 1, quantity: 1, requiresSize: true, sizeProperty: 'jaslabSize' }, // Jaslab (ID 1) memerlukan ukuran
+            { productId: 4, quantity: 1 }, // Sticker (3pcs) (ID 4)
+            { productId: 9, quantity: 1 }  // Topi Metalurgi (ID 9)
+        ],
+        promoImages: [ // Gambar-gambar yang akan ditampilkan di halaman detail bundle
+            "assets/jaslab-1.jpg",
+            "assets/size-chart-a.jpg",
+            "assets/sticker-pack-1.jpg",
+            "assets/topi-immt-1.jpg",
+        ]
+      },
+      // Tambahkan bundle lain di sini jika ada:
+      /*
+      {
+        id: 'bundle-wisuda',
+        name: 'Paket Wisuda Lengkap',
+        image: 'assets/bundle-wisuda.jpg',
+        description: 'Persiapan wisuda lebih mudah dengan paket lengkap ini!',
+        isBundle: true,
+        bundleDiscount: 20000,
+        bundleItems: [
+            { productId: 2, quantity: 1, requiresSize: true, sizeProperty: 'workshirtKpSize' }, // Contoh: Workshirt KP
+            { productId: 7, quantity: 1 }, // Contoh: Keychain Makara FTUI
+            // ... item lain
+        ],
+        promoImages: [
+            "assets/workshirt-kp-1.jpg",
+            "assets/keychain-makara-1.jpg",
+        ]
+      }
+      */
     ];
 
-    // Filter products, only display those with `inBundle: true`
-    // Note: If you want to show ALL products regardless of whether they are in a bundle,
-    // change this line to: `const products = [...allProducts];`
-    const products = allProducts.filter(product => product.inBundle);
+    // MODIFIED: Untuk menampilkan semua produk di bagian "Koleksi Produk Pilihan Kami"
+    const products = allProducts.filter(p => !p.isBundle); // Hanya tampilkan produk individual di grid utama
 
     let cart = [];
-    let currentDetailProduct = null;
-    let currentImageIndex = 0;
-    let countdownInterval = null;
-    let customerData = null;
-    let selectedSize = null;
-    let selectedOption = null; // New variable for product options (e.g., keychain type)
-    let filteredProducts = [...products]; // To store products after search filter
-    let paymentProofFile = null; // To store the uploaded file
-
-    // Variables for promo size selection
-    let promoJaslabMabaSize = null; // Jaslab size for MABA bundle
-    let promoWorkshirtKpMabaSize = null; // Workshirt KP size for MABA bundle
-    let promoJaslabAnakMetalSize = null; // Jaslab size for Anak Metal bundle
+    let filteredProducts = [...products]; // Untuk menyimpan produk setelah filter pencarian
 
     const dom = {
       productsGrid: document.getElementById("products-grid"),
       cartModal: document.getElementById("cart-modal"),
-      productDetailModal: document.getElementById("product-detail-modal"),
-      customerDataModal: document.getElementById("customer-data-modal"),
-      paymentModal: document.getElementById("payment-modal"),
       successModal: document.getElementById("success-modal"),
       productOverviewModal: document.getElementById("product-overview-modal"),
       closeProductOverviewModalBtn: document.getElementById("close-product-overview-modal"),
       openCartBtn: document.getElementById("open-cart-btn"),
       checkoutBtn: document.getElementById("checkout-btn"),
       cartItemsContainer: document.getElementById("cart-items"),
-      mainProductImage: document.getElementById("main-product-image"),
-      thumbnailContainer: document.getElementById("thumbnail-container"),
-      prevImageBtn: document.getElementById("prev-image-btn"),
-      nextImageBtn: document.getElementById("next-image-btn"),
-      detailProductName: document.getElementById("detail-product-name"),
-      detailProductDescription: document.getElementById("detail-product-description"), // New element
-      detailNormalPrice: document.getElementById("detail-normal-price"), // New element for strikethrough price
-      detailProductPrice: document.getElementById("detail-product-price"),
-      detailSizeContainer: document.getElementById("detail-size-container"),
-      detailSizeOptions: document.getElementById("detail-size-options"),
-      detailOptionContainer: document.getElementById("detail-option-container"), // New element
-      detailOptionLabel: document.getElementById("detail-option-label"), // New element
-      detailOptionOptions: document.getElementById("detail-option-options"), // New element
-      detailActionContainer: document.getElementById(
-        "detail-action-container"
-      ),
       cartTotalEl: document.getElementById("cart-total"),
       cartCountBadge: document.getElementById("cart-count-badge"),
-      customerForm: document.getElementById("customer-form"),
-      finishPaymentBtn: document.getElementById("finish-payment-btn"),
       closeModalBtns: document.querySelectorAll(".close-modal-btn"),
-      orderSummaryItems: document.getElementById("order-summary-items"),
-      orderSummaryTotal: document.getElementById("order-summary-total"),
-      customerDataSummary: document.getElementById("customer-data-summary"),
-      countdownTimer: document.getElementById("countdown-timer"),
-      searchInput: document.getElementById("search-input"),
-      // Elements for shipping address
-      deliveryOption: document.getElementById("delivery-option"),
-      pickupOption: document.getElementById("pickup-option"),
-      addressInputContainer: document.getElementById("address-input-container"),
-      paymentProofInput: document.getElementById("payment-proof"),
 
-      // Elements for Early Bird Maba bundle
-      promoMabaCard: document.getElementById("promo-maba-card"), // For overview and main promo
-      mainPromoCardMaba: document.getElementById("main-promo-card"), // For overview and main promo
-      bundlePromoMabaModal: document.getElementById("bundle-promo-maba-modal"),
-      bundleMabaJaslabSizeOptions: document.getElementById("bundle-maba-jaslab-size-options"),
-      bundleMabaWorkshirtKpSizeOptions: document.getElementById("bundle-maba-workshirt-kp-size-options"),
-      addBundleMabaToCartBtn: document.getElementById("add-bundle-maba-to-cart-btn"),
-      bundleMabaJaslabPrice: document.getElementById("bundle-maba-jaslab-price"),
-      bundleMabaJaslabStrikethroughPrice: document.getElementById("bundle-maba-jaslab-strikethrough-price"), // New element
-      bundleMabaWorkshirtKpPrice: document.getElementById("bundle-maba-workshirt-kp-price"),
-      bundleMabaWorkshirtKpStrikethroughPrice: document.getElementById("bundle-maba-workshirt-kp-strikethrough-price"), // New element
-      bundleMabaNormalPrice: document.getElementById("bundle-maba-normal-price"),
-      bundleMabaDiscountedPrice: document.getElementById("bundle-maba-discounted-price"),
-      bundleMabaSavingsMessage: document.getElementById("bundle-maba-savings-message"),
-
-      // Elements for Gue Anak Metal! bundle
-      promoAnakMetalCard: document.getElementById("promo-anak-metal-card"),
-      mainPromoCardAnakMetal: document.getElementById("main-promo-anak-metal-card"),
-      bundlePromoAnakMetalModal: document.getElementById("bundle-promo-anak-metal-modal"),
-      bundleAnakMetalJaslabSizeOptions: document.getElementById("bundle-anak-metal-jaslab-size-options"),
-      addBundleAnakMetalToCartBtn: document.getElementById("add-bundle-anak-metal-to-cart-btn"),
-      bundleAnakMetalJaslabPrice: document.getElementById("bundle-anak-metal-jaslab-price"),
-      bundleAnakMetalJaslabStrikethroughPrice: document.getElementById("bundle-anak-metal-jaslab-strikethrough-price"), // New element
-      bundleAnakMetalNormalPrice: document.getElementById("bundle-anak-metal-normal-price"),
-      bundleAnakMetalDiscountedPrice: document.getElementById("bundle-anak-metal-discounted-price"),
-      bundleAnakMetalSavingsMessage: document.getElementById("bundle-anak-metal-savings-message"),
+      // Elements for main promo cards (now generic redirect)
+      promoSimakCard: document.getElementById("promo-simak-card"), // For overview
+      mainPromoCardSimak: document.getElementById("main-promo-card"), // For main promo section
 
       continueShoppingBtn: document.getElementById("continue-shopping-btn"), // New button for continue shopping
 
-      // New for "Nama untuk Bordir"
-      bordirNameContainer: document.getElementById("bordir-name-container"),
-      // Selector for the embroidery name input field
-      bordirNameInput: document.querySelector('#bordir-name-container input[name="Nama untuk Bordir"]'),
-    };
+      // Custom Alert Modal
+      customAlertModal: document.getElementById("custom-alert-modal"),
+      customAlertMessage: document.getElementById("custom-alert-message"),
+      closeAlertBtn: document.getElementById("close-alert-btn"),
 
-    const BUNDLE_DISCOUNT_AMOUNT = 15000; // Define the discount amount for all bundles
+      searchInput: document.getElementById("search-input"),
+    };
 
     // Helper function to format currency
     const formatCurrency = (n) =>
@@ -1174,7 +834,7 @@
           lucide.createIcons(); // Recreate icons when modal is visible
       } else {
           // Only re-enable scroll if no other modal is visible
-          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay, .product-overview-modal-overlay')).some(m => m.classList.contains('visible'));
+          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay')).some(m => m.classList.contains('visible'));
           if (!anyOtherModalVisible) {
               document.body.style.overflow = ''; // Enable body scroll
           }
@@ -1221,6 +881,17 @@
                     </div>`;
         dom.productsGrid.innerHTML += productCard;
       });
+    };
+
+    // Function to load cart from localStorage
+    const loadCart = () => {
+        const storedCart = localStorage.getItem('immtShopCart');
+        cart = storedCart ? JSON.parse(storedCart) : [];
+    };
+
+    // Function to save cart to localStorage
+    const saveCart = () => {
+        localStorage.setItem('immtShopCart', JSON.stringify(cart));
     };
 
     const renderCart = () => {
@@ -1299,39 +970,6 @@
       lucide.createIcons();
     };
 
-    const addToCart = (productId, size = null, option = null, quantity = 1) => {
-      const product = allProducts.find((p) => p.id === productId); // Use allProducts here to get correct product details
-      if (!product) {
-          console.error(`Product with ID ${productId} not found.`);
-          return;
-      }
-      let finalPrice = product.price;
-
-      if (product.hasSizes && size) {
-        finalPrice = calculatePrice(finalPrice, size, productId); // Pass productId to calculatePrice
-      }
-      
-      // Use option in cartItemId for products with options
-      const cartItemId = (size ? `${productId}-${size}` : `${productId}`) + (option ? `-${option}` : '');
-      let cartItem = cart.find((item) => item.cartItemId === cartItemId);
-
-      if (cartItem) {
-        cartItem.quantity += quantity;
-      } else {
-        cart.push({
-          ...product,
-          quantity: quantity,
-          size,
-          option, // Store the selected option
-          finalPrice,
-          cartItemId,
-          isBundle: false // Explicitly mark as non-bundle
-        });
-      }
-      updateUI();
-      renderDetailActionButtons();
-    };
-
     const updateCartQuantity = (cartItemId, change) => {
       let cartItem = cart.find((item) => item.cartItemId === cartItemId);
       if (!cartItem || cartItem.isBundle) { // Prevent quantity change for bundles in cart
@@ -1341,565 +979,24 @@
       if (cartItem.quantity <= 0) {
         cart = cart.filter((item) => item.cartItemId !== cartItemId);
       }
+      saveCart(); // Save cart after updating quantity
       updateUI();
-      renderDetailActionButtons();
     };
-
-    const openProductDetail = (productId) => {
-      currentDetailProduct = allProducts.find((p) => p.id === productId); // Use allProducts here
-      if (!currentDetailProduct) return;
-      selectedSize = null;
-      selectedOption = null; // Reset selected option
-
-      dom.detailProductName.textContent = currentDetailProduct.name;
-      dom.detailProductDescription.innerHTML = currentDetailProduct.description || ''; // Display description
-      currentImageIndex = 0;
-      renderProductImages();
-      renderDetailActionButtons();
-
-      // Handle sizes
-      if (currentDetailProduct.hasSizes) {
-        dom.detailSizeContainer.style.display = 'block';
-        dom.detailSizeOptions.innerHTML = currentDetailProduct.sizes
-                          .map(
-                            (size) =>
-                              `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
-                          )
-                          .join("");
-        
-        // Display strikethrough price if available
-        if (currentDetailProduct.strikethroughPrice) {
-            dom.detailNormalPrice.textContent = formatCurrency(currentDetailProduct.strikethroughPrice);
-            dom.detailNormalPrice.style.display = 'inline';
-        } else {
-            dom.detailNormalPrice.style.display = 'none';
-        }
-
-        dom.detailProductPrice.textContent =
-          formatCurrency(currentDetailProduct.price) + " (mulai)";
-      } else {
-        dom.detailSizeContainer.style.display = 'none';
-        dom.detailSizeOptions.innerHTML = "";
-        dom.detailNormalPrice.style.display = 'none'; // Hide strikethrough price if no sizes
-        dom.detailProductPrice.textContent = formatCurrency(
-          currentDetailProduct.price
-        );
-      }
-
-      // Handle options (for Keychain IMMt and Sticker Mobil)
-      if (currentDetailProduct.hasOptions && currentDetailProduct.options) {
-        dom.detailOptionContainer.style.display = 'block';
-        dom.detailOptionOptions.innerHTML = currentDetailProduct.options
-            .map(option => `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`)
-            .join("");
-        dom.detailOptionLabel.textContent = "Pilih Varian:"; // More specific label
-      } else {
-        dom.detailOptionContainer.style.display = 'none';
-        dom.detailOptionOptions.innerHTML = "";
-      }
-
-      toggleModal(dom.productDetailModal, true);
-      lucide.createIcons();
-    };
-
-    const renderProductImages = () => {
-      dom.mainProductImage.src =
-        currentDetailProduct.detailImages[currentImageIndex];
-      dom.mainProductImage.onerror = () => {
-        dom.mainProductImage.src =
-          "assets/placeholder.png";
-      };
-      dom.thumbnailContainer.innerHTML = "";
-      currentDetailProduct.detailImages.forEach((imgSrc, index) => {
-        const thumb = document.createElement("img");
-        thumb.src = imgSrc;
-        thumb.className = `w-16 h-16 object-cover rounded-md cursor-pointer border-2 opacity-60 hover:opacity-100 ${
-          index === currentImageIndex
-            ? "thumbnail-active"
-            : "border-transparent"
-        }`;
-        thumb.onclick = () => {
-          currentImageIndex = index;
-          renderProductImages();
-        };
-        dom.thumbnailContainer.appendChild(thumb);
-      });
-    };
-
-    const renderDetailActionButtons = () => {
-      if (!currentDetailProduct) return;
-
-      let cartHtml = '';
-      const existingCartItem = cart.find(item =>
-          item.id === currentDetailProduct.id &&
-          (!currentDetailProduct.hasSizes || item.size === selectedSize) &&
-          (!currentDetailProduct.hasOptions || item.option === selectedOption) &&
-          !item.isBundle // Exclude bundles from this check
-      );
-
-      if (existingCartItem) {
-        // Item is in cart, show quantity controls
-        cartHtml = `
-            <div class="flex items-center justify-center border rounded-lg w-full">
-                <button class="detail-quantity-btn p-4 flex-1" data-cart-item-id="${existingCartItem.cartItemId}" data-change="-1" ${existingCartItem.quantity === 1 ? 'disabled' : ''}>-</button>
-                <span class="px-6 font-bold text-xl">${existingCartItem.quantity} di keranjang</span>
-                <button class="detail-quantity-btn p-4 flex-1" data-cart-item-id="${existingCartItem.cartItemId}" data-change="1">+</button>
-            </div>`;
-      } else {
-        // Item not in cart, show "Add to Cart" button
-        let isDisabled = false;
-        if (currentDetailProduct.hasSizes && !selectedSize) {
-            isDisabled = true;
-        }
-        if (currentDetailProduct.hasOptions && !selectedOption) {
-            isDisabled = true;
-        }
-        cartHtml = `<button id="add-detail-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2" ${isDisabled ? 'disabled' : ''}>
-                <i data-lucide="shopping-bag"></i>
-                <span>Tambahkan ke Keranjang</span>
-            </button>`;
-      }
-      dom.detailActionContainer.innerHTML = cartHtml;
-      lucide.createIcons();
-    };
-    // End of Function Definitions
-
 
     const updateUI = () => {
       renderProducts(filteredProducts); // Render filtered products
       renderCart();
     };
 
-    // Function to update bundle prices and savings message for Early Bird Maba
-    const updateBundleMabaPrices = () => {
-        const jaslabProduct = allProducts.find(p => p.id === 1);
-        const workshirtKpProduct = allProducts.find(p => p.id === 2);
-        const gamtekProduct = allProducts.find(p => p.id === 8);
-        const keychainImmtProduct = allProducts.find(p => p.id === 6);
-        const keychainMakaraProduct = allProducts.find(p => p.id === 7);
-        const stickerMobilProduct = allProducts.find(p => p.id === 5);
-
-        let currentJaslabPrice = 0;
-        let currentJaslabStrikethroughPrice = jaslabProduct.strikethroughPrice || jaslabProduct.price; // Use strikethrough if available
-        if (promoJaslabMabaSize) {
-            currentJaslabPrice = calculatePrice(jaslabProduct.price, promoJaslabMabaSize, jaslabProduct.id); // Pass productId
-            currentJaslabStrikethroughPrice = calculatePrice(jaslabProduct.strikethroughPrice || jaslabProduct.price, promoJaslabMabaSize, jaslabProduct.id);
-            dom.bundleMabaJaslabPrice.textContent = formatCurrency(currentJaslabPrice);
-            dom.bundleMabaJaslabStrikethroughPrice.textContent = formatCurrency(currentJaslabStrikethroughPrice);
-            dom.bundleMabaJaslabStrikethroughPrice.style.display = 'inline';
-        } else {
-            dom.bundleMabaJaslabPrice.textContent = 'Pilih Ukuran';
-            dom.bundleMabaJaslabStrikethroughPrice.style.display = 'none';
-        }
-
-        let currentWorkshirtKpPrice = 0;
-        let currentWorkshirtKpStrikethroughPrice = workshirtKpProduct.strikethroughPrice || workshirtKpProduct.price;
-        if (promoWorkshirtKpMabaSize) {
-            currentWorkshirtKpPrice = calculatePrice(workshirtKpProduct.price, promoWorkshirtKpMabaSize, workshirtKpProduct.id); // Pass productId
-            currentWorkshirtKpStrikethroughPrice = calculatePrice(workshirtKpProduct.strikethroughPrice || workshirtKpProduct.price, promoWorkshirtKpMabaSize, workshirtKpProduct.id);
-            dom.bundleMabaWorkshirtKpPrice.textContent = formatCurrency(currentWorkshirtKpPrice);
-            dom.bundleMabaWorkshirtKpStrikethroughPrice.textContent = formatCurrency(currentWorkshirtKpStrikethroughPrice);
-            dom.bundleMabaWorkshirtKpStrikethroughPrice.style.display = 'inline';
-        } else {
-            dom.bundleMabaWorkshirtKpPrice.textContent = 'Pilih Ukuran';
-            dom.bundleMabaWorkshirtKpStrikethroughPrice.style.display = 'none';
-        }
-
-        const gamtekPrice = gamtekProduct.price;
-        const keychainImmtPrice = keychainImmtProduct.price; // Individual price
-        const keychainMakaraPrice = keychainMakaraProduct.price;
-        const stickerMobilPrice = stickerMobilProduct.price; // Individual price
-
-        // Calculate total normal price using strikethrough prices if they exist, otherwise original price
-        const totalNormalBundlePrice = (promoJaslabMabaSize ? currentJaslabStrikethroughPrice : jaslabProduct.strikethroughPrice || jaslabProduct.price) + 
-                                     (promoWorkshirtKpMabaSize ? currentWorkshirtKpStrikethroughPrice : workshirtKpProduct.strikethroughPrice || workshirtKpProduct.price) + 
-                                     gamtekPrice + (keychainImmtPrice * 2) + keychainMakaraPrice + (stickerMobilPrice * 2);
-        
-        const calculatedBundlePrice = (promoJaslabMabaSize ? currentJaslabPrice : jaslabProduct.price) + 
-                                      (promoWorkshirtKpMabaSize ? currentWorkshirtKpPrice : workshirtKpProduct.price) + 
-                                      gamtekPrice + (keychainImmtPrice * 2) + keychainMakaraPrice + (stickerMobilPrice * 2);
-
-        const finalDiscountedBundlePrice = calculatedBundlePrice - BUNDLE_DISCOUNT_AMOUNT;
-        
-        const savings = totalNormalBundlePrice - finalDiscountedBundlePrice;
-
-        dom.bundleMabaNormalPrice.innerHTML = formatCurrency(totalNormalBundlePrice);
-        dom.bundleMabaDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
-
-        // Enable/disable add to cart button based on size selections
-        if (promoJaslabMabaSize && promoWorkshirtKpMabaSize) {
-            dom.addBundleMabaToCartBtn.disabled = false;
-            dom.bundleMabaSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
-        } else {
-            dom.addBundleMabaToCartBtn.disabled = true;
-            dom.bundleMabaSavingsMessage.textContent = 'Pilih ukuran untuk melihat penghematan!';
-        }
-    };
-
-    // Function to update bundle prices and savings message for Gue Anak Metal!
-    const updateBundleAnakMetalPrices = () => {
-        const jaslabProduct = allProducts.find(p => p.id === 1);
-        const topiImmtProduct = allProducts.find(p => p.id === 9);
-        const keychainImmtProduct = allProducts.find(p => p.id === 6);
-
-        let currentJaslabPrice = 0;
-        let currentJaslabStrikethroughPrice = jaslabProduct.strikethroughPrice || jaslabProduct.price;
-        if (promoJaslabAnakMetalSize) {
-            currentJaslabPrice = calculatePrice(jaslabProduct.price, promoJaslabAnakMetalSize, jaslabProduct.id); // Pass productId
-            currentJaslabStrikethroughPrice = calculatePrice(jaslabProduct.strikethroughPrice || jaslabProduct.price, promoJaslabAnakMetalSize, jaslabProduct.id);
-            dom.bundleAnakMetalJaslabPrice.textContent = formatCurrency(currentJaslabPrice);
-            dom.bundleAnakMetalJaslabStrikethroughPrice.textContent = formatCurrency(currentJaslabStrikethroughPrice);
-            dom.bundleAnakMetalJaslabStrikethroughPrice.style.display = 'inline';
-        } else {
-            dom.bundleAnakMetalJaslabPrice.textContent = 'Pilih Ukuran';
-            dom.bundleAnakMetalJaslabStrikethroughPrice.style.display = 'none';
-        }
-
-        const topiImmtPrice = topiImmtProduct.price;
-        const keychainImmtPrice = keychainImmtProduct.price; // Individual price
-
-        // Calculate total normal price using strikethrough prices if they exist, otherwise original price
-        const totalNormalBundlePrice = (promoJaslabAnakMetalSize ? currentJaslabStrikethroughPrice : jaslabProduct.strikethroughPrice || jaslabProduct.price) + topiImmtPrice + (keychainImmtPrice * 2);
-        
-        const calculatedBundlePrice = (promoJaslabAnakMetalSize ? currentJaslabPrice : jaslabProduct.price) + topiImmtPrice + (keychainImmtPrice * 2);
-        const finalDiscountedBundlePrice = calculatedBundlePrice - BUNDLE_DISCOUNT_AMOUNT;
-
-        const savings = totalNormalBundlePrice - finalDiscountedBundlePrice;
-
-        dom.bundleAnakMetalNormalPrice.innerHTML = formatCurrency(totalNormalBundlePrice);
-        dom.bundleAnakMetalDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
-
-        // Enable/disable add to cart button based on size selections
-        if (promoJaslabAnakMetalSize) {
-            dom.addBundleAnakMetalToCartBtn.disabled = false;
-            dom.bundleAnakMetalSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
-        } else {
-            dom.addBundleAnakMetalToCartBtn.disabled = true;
-            dom.bundleAnakMetalSavingsMessage.textContent = 'Pilih ukuran untuk melihat penghematan!';
-        }
-    };
-
-
-    const startCountdown = () => {
-      clearInterval(countdownInterval);
-      let duration = 300;
-      countdownInterval = setInterval(() => {
-        const minutes = Math.floor(duration / 60)
-          .toString()
-          .padStart(2, "0");
-        const seconds = (duration % 60).toString().padStart(2, "0");
-        dom.countdownTimer.textContent = `${minutes}:${seconds}`;
-        if (--duration < 0) handlePaymentTimeout();
-      }, 1000);
-    };
-
-    const handlePaymentTimeout = () => {
-      clearInterval(countdownInterval);
-      // Use custom modal instead of alert()
-      showCustomAlert("Waktu pembayaran telah habis. Silakan ulangi pesanan Anda.");
-      toggleModal(dom.paymentModal, false);
-      cart = [];
-      customerData = null;
-      dom.customerForm.reset();
-      updateUI();
-    };
-
     // Custom alert modal implementation
     const showCustomAlert = (message) => {
-        const alertModal = document.createElement('div');
-        alertModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4';
-        alertModal.innerHTML = `
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
-                <p class="text-gray-600 mb-6">${message}</p>
-                <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
-            </div>
-        `;
-        document.body.appendChild(alertModal);
-
-        alertModal.querySelector('#close-alert-btn').addEventListener('click', () => {
-            document.body.removeChild(alertModal);
-        });
+        dom.customAlertMessage.textContent = message;
+        dom.customAlertModal.classList.remove('hidden');
     };
 
-    const populateConfirmationPage = (formData) => {
-      dom.orderSummaryItems.innerHTML = "";
-      let orderItemsHtml = "";
-      let totalOrderAmount = 0; // Calculate total from what's displayed
-
-      cart.forEach(item => {
-          if (item.isBundle) {
-              // Display the bundle name and its final discounted price
-              orderItemsHtml += `
-                  <div class="mt-4 mb-2 text-md font-bold text-gray-800">${item.name} (${formatCurrency(item.finalPrice)})</div>
-                  <ul class="ml-4 list-disc list-inside text-sm text-gray-700">
-              `;
-              // Iterate through bundle details for breakdown, showing individual item prices (including strikethrough if applicable)
-              item.bundleDetails.forEach(detail => {
-                  const detailProduct = allProducts.find(p => p.id === detail.id);
-                  const detailDisplayPrice = detail.price; // This is the price of the item *within* the bundle
-                  let detailStrikethroughPriceHtml = '';
-
-                  // Check if the individual item itself has a strikethrough price property
-                  if (detailProduct && detailProduct.strikethroughPrice) {
-                      // Apply size increment to the strikethrough price as well, if applicable
-                      const calculatedStrikethroughPrice = calculatePrice(detailProduct.strikethroughPrice, detail.size, detail.id);
-                      detailStrikethroughPriceHtml = `<s class="text-red-500">${formatCurrency(calculatedStrikethroughPrice)}</s> `;
-                  }
-                  
-                  orderItemsHtml += `
-                      <li>${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} 
-                          (${detailStrikethroughPriceHtml}${formatCurrency(detailDisplayPrice * detail.quantity)})
-                      </li>
-                  `;
-              });
-              orderItemsHtml += `</ul>`;
-              // THIS IS THE KEY FIX: Add the bundle's final discounted price to the total, only once per bundle
-              totalOrderAmount += item.finalPrice;
-          } else {
-              orderItemsHtml += `
-                  <div class="flex justify-between text-sm">
-                      <span>${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity}</span>
-                      <span>${formatCurrency(item.finalPrice * item.quantity)}</span>
-                  </div>
-              `;
-              totalOrderAmount += item.finalPrice * item.quantity;
-          }
-      });
-      dom.orderSummaryItems.innerHTML = orderItemsHtml;
-      dom.orderSummaryTotal.textContent = formatCurrency(totalOrderAmount);
-
-      dom.customerDataSummary.innerHTML = "";
-      customerData = {};
-      formData.forEach((value, key) => {
-        customerData[key] = value;
-        dom.customerDataSummary.innerHTML += `<div><strong>${key}:</strong> ${value}</div>`;
-      });
-      // Add shipping cost disclaimer if "Dikirim ke Alamat" was selected
-      if (customerData.Pengiriman === "Dikirim ke Alamat") {
-          dom.customerDataSummary.innerHTML += `
-              <div class="text-xs text-gray-500 mt-2">
-                  <p>Mohon diperhatikan bahwa harga di atas belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian. Terima kasih atas pengertian Anda.<br><br>Pengiriman dilakukan dari Kampus Universitas Indonesia </p>
-              </div>
-          `;
-      }
-    };
-
-    // Function to upload payment proof to Cloudinary
-    const uploadPaymentProof = async (file) => {
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-        // Untuk tujuan pengujian ini, Cloudinary dinonaktifkan.
-        // Jika Anda ingin mengaktifkan Cloudinary, pastikan CLOUDINARY_CLOUD_NAME dan CLOUDINARY_UPLOAD_PRESET diatur.
-        if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
-            console.warn("Cloudinary is disabled. Skipping file upload and returning a dummy URL.");
-            return Promise.resolve("https://example.com/dummy-payment-proof.jpg");
-        }
-
-        if (file.size > MAX_FILE_SIZE) {
-            throw new Error("Ukuran file terlalu besar. Maksimal 5MB.");
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-        // Create XHR object to monitor upload progress
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
-
-            xhr.upload.addEventListener('progress', (event) => {
-                if (event.lengthComputable) {
-                    const progress = (event.loaded / event.total) * 100;
-                    dom.finishPaymentBtn.textContent = `Mengunggah: ${progress.toFixed(0)}%`;
-                }
-            });
-
-            xhr.onload = () => {
-                if (xhr.status === 200) {
-                    const data = JSON.parse(xhr.responseText);
-                    resolve(data.secure_url); // Secure URL of the uploaded image
-                } else {
-                    const errorData = JSON.parse(xhr.responseText);
-                    console.error("Cloudinary Upload Error:", errorData);
-                    reject(new Error(`Gagal mengunggah ke Cloudinary: ${errorData.error.message || xhr.statusText}`));
-                }
-            };
-
-            xhr.onerror = () => {
-                reject(new Error('Kesalahan jaringan saat mengunggah ke Cloudinary.'));
-            };
-
-            xhr.send(formData);
-        });
-    };
-
-    // Fungsi pembantu untuk memformat detail pesanan untuk email
-    const generateEmailOrderDetails = (items) => {
-        let details = '';
-        items.forEach(item => {
-            if (item.isBundle) {
-                details += `\n--- ${item.name} (${formatCurrency(item.finalPrice)}) ---\n`;
-                item.bundleDetails.forEach(detail => {
-                    // Pastikan detail.price adalah angka sebelum formatCurrency
-                    const detailPrice = typeof detail.price === 'number' ? detail.price : 0;
-                    details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detailPrice * detail.quantity)})\n`;
-                });
-            } else {
-                // Pastikan item.price adalah angka sebelum formatCurrency
-                const itemPriceForEmail = typeof item.price === 'number' ? item.price : 0;
-                details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(itemPriceForEmail * item.quantity)})\n`;
-            }
-        });
-        return details;
-    };
-
-    // Fungsi untuk mengirim pesanan ke Firestore
-    const submitOrder = async () => {
-        // Jika Cloudinary dinonaktifkan, paymentProofFile tidak akan diunggah, jadi kita bisa langsung melanjutkan.
-        // Jika Cloudinary diaktifkan, kita perlu memastikan file sudah dipilih.
-        if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '' && !paymentProofFile) {
-            showCustomAlert("Silakan unggah bukti pembayaran terlebih dahulu!");
-            return;
-        }
-
-        dom.finishPaymentBtn.disabled = true;
-        const originalButtonText = dom.finishPaymentBtn.textContent; // Save original button text
-        
-        try {
-            let paymentProofURL = "N/A"; // Default jika Cloudinary dinonaktifkan
-            if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '') {
-                // Hanya unggah jika Cloudinary diaktifkan
-                paymentProofURL = await uploadPaymentProof(paymentProofFile);
-                if (!paymentProofURL) {
-                    throw new Error("Gagal mendapatkan URL bukti pembayaran. URL kosong.");
-                }
-            } else {
-                console.log("Cloudinary dinonaktifkan, melewati unggahan bukti pembayaran.");
-            }
-
-            // Flatten the cart items for Firebase persistence
-            const flattenedCart = [];
-            let totalAmountForFirestore = 0;
-            cart.forEach(item => {
-                if (item.isBundle) {
-                    // For bundle, we store its final price and a breakdown for record-keeping
-                    flattenedCart.push({
-                        name: item.name,
-                        quantity: item.quantity, // Should always be 1 for a bundle
-                        finalPrice: item.finalPrice, // The actual price of the bundle as a unit
-                        isBundle: true,
-                        bundleDetails: item.bundleDetails // Store the detailed breakdown for reference
-                    });
-                    totalAmountForFirestore += item.finalPrice * item.quantity; // Use bundle's final price
-                } else {
-                    flattenedCart.push({
-                        name: item.name,
-                        size: item.size || "N/A",
-                        option: item.option || "N/A",
-                        quantity: item.quantity,
-                        price: item.finalPrice, // For non-bundle items, use their finalPrice
-                    });
-                    totalAmountForFirestore += item.finalPrice * item.quantity;
-                }
-            });
-
-            // Generate a unique order ID
-            const orderId = db.collection("orders").doc().id; // Firestore generates a unique ID
-
-            // Order data object to be stored in Firestore
-            const orderData = {
-                orderId: orderId, // Add the generated order ID
-                customer: customerData, // Customer data from form
-                items: flattenedCart, // Detailed items in cart
-                totalAmount: totalAmountForFirestore, // Total payment from product details
-                paymentProofURL: paymentProofURL, // Uploaded payment proof URL
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(), // Timestamp when order was created
-            };
-
-            // Add order data to the 'orders' collection in Firestore
-            await db.collection("orders").doc(orderId).set(orderData); // Set document with custom ID
-
-            console.log("Data sent to Firestore successfully.");
-            clearInterval(countdownInterval); // Stop countdown
-            toggleModal(dom.paymentModal, false); // Close payment modal
-            toggleModal(dom.successModal, true); // Display success modal
-
-            // Kirim email rekap pembelian
-            try {
-                const emailParams = {
-                    to_email: customerData.Email, // Email pelanggan
-                    customer_name: customerData.Nama, // Nama pelanggan
-                    order_id: orderId, // ID pesanan
-                    order_details: generateEmailOrderDetails(orderData.items), // Fungsi untuk membuat detail pesanan dalam format teks
-                    total_amount: formatCurrency(orderData.totalAmount), // Total pembayaran
-                    // Tambahkan parameter lain yang Anda definisikan di template EmailJS Anda
-                };
-
-                // Ganti 'YOUR_SERVICE_ID' dan 'YOUR_TEMPLATE_ID' dengan ID EmailJS Anda
-                await emailjs.send('service_ltidkgp', 'template_pealc2t', emailParams);
-                console.log('Email sent successfully via EmailJS!');
-            } catch (emailError) {
-                console.error('Failed to send email via EmailJS:', emailError);
-                showCustomAlert("Gagal mengirim email konfirmasi. Silakan hubungi admin.");
-            }
-
-
-            // Close success modal and reset cart after a few seconds
-            setTimeout(() => {
-                toggleModal(dom.successModal, false);
-                cart = []; // Empty cart
-                customerData = null; // Clear customer data
-                paymentProofFile = null; // Clear stored file
-                dom.paymentProofInput.value = ''; // Clear file input
-                dom.finishPaymentBtn.disabled = false; // Enable button after success (it's always enabled now)
-                updateUI(); // Update UI
-            }, 4000);
-        } catch (error) {
-            console.error("Error submitting order:", error);
-            let errorMessage = "Maaf, terjadi kesalahan saat mengirim pesanan.";
-            if (error.message.includes("Ukuran file terlalu besar")) {
-                errorMessage = error.message;
-            } else if (error.message.includes("Cloudinary")) {
-                errorMessage = `Kesalahan unggah gambar ke Cloudinary: ${error.message}`;
-            } else if (error.message.includes("Cloudinary configuration keys are not set")) {
-                errorMessage = error.message;
-            }
-            // If the error is from Firestore (e.g., Firestore security rules issue)
-            else if (error.code && error.code.includes('firestore')) {
-                errorMessage = `Kesalahan penyimpanan data (Firestore): ${error.message}. Harap periksa aturan keamanan Firestore Anda.`;
-            }
-            else {
-                errorMessage = `Kesalahan umum: ${error.message}`;
-            }
-            // Use custom modal instead of alert()
-            showCustomAlert(`${errorMessage} Silakan coba lagi atau hubungi admin.`);
-        } finally {
-            dom.finishPaymentBtn.textContent = originalButtonText; // Restore original button text
-        }
-    };
-
-    // Function to check if any item in the cart requires embroidery
-    const hasBordirItemsInCart = () => {
-        // Product IDs that require embroidery (Jas laboratorium, Workshirt Kerja Praktik, Workshirt Metalurgi)
-        const bordirProductIds = [1, 2, 3]; 
-
-        for (const item of cart) {
-            if (item.isBundle) {
-                // Check if any product in bundleDetails requires embroidery
-                if (item.bundleDetails.some(detail => bordirProductIds.includes(detail.id))) {
-                    return true;
-                }
-            } else {
-                // Check if an individual product requires embroidery
-                if (bordirProductIds.includes(item.id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
+    dom.closeAlertBtn.addEventListener('click', () => {
+        dom.customAlertModal.classList.add('hidden');
+    });
 
     // Event Listeners
 
@@ -1908,144 +1005,37 @@
         const productCard = e.target.closest(".product-card");
         if (productCard) {
             const productId = parseInt(productCard.dataset.productId);
-            openProductDetail(productId);
+            // Redirect to product_detail.html with product ID
+            window.location.href = `product_detail.html?id=${productId}`;
         }
     });
 
     // Main Event Listener using event delegation on document.body
     document.body.addEventListener("click", (e) => {
-        // --- Handling Buttons in Product Detail Modal ---
-        const addBtn = e.target.closest("#add-detail-to-cart-btn");
-        if (addBtn) {
-            if (currentDetailProduct.hasSizes && !selectedSize) {
-                showCustomAlert("Please select a size first.");
-                return;
-            }
-            if (currentDetailProduct.hasOptions && !selectedOption) {
-                showCustomAlert("Please select a variant first.");
-                return;
-            }
-            addToCart(currentDetailProduct.id, selectedSize, selectedOption);
-            toggleModal(dom.productDetailModal, false);
-            toggleModal(dom.cartModal, true); // Show cart after adding item
-            return; // Important: stop execution after handling event
-        }
-
-        const detailQuantityBtn = e.target.closest(".detail-quantity-btn");
-        if (detailQuantityBtn) {
-            const cartItemId = detailQuantityBtn.dataset.cartItemId;
-            const change = parseInt(detailQuantityBtn.dataset.change);
-            updateCartQuantity(cartItemId, change);
-            return; // Important: stop execution after handling event
-        }
-
-        // --- Handling Buttons in Cart Modal ---
-        const updateCartBtn = e.target.closest(".update-cart-quantity-btn");
-        if (updateCartBtn) {
-            updateCartQuantity(
-                updateCartBtn.dataset.cartItemId,
-                parseInt(updateCartBtn.dataset.change)
-            );
-            return; // Important: stop execution after handling event
-        }
-
         const removeCartBtn = e.target.closest(".remove-from-cart-btn");
         if (removeCartBtn) {
             cart = cart.filter(
                 (item) => item.cartItemId !== removeCartBtn.dataset.cartItemId
             );
+            saveCart(); // Save cart after removing item
             updateUI();
             return; // Important: stop execution after handling event
         }
 
-        // --- Handling Size Options in Product Detail (Already existed, but moved here for consistency) ---
-        if (e.target.matches("#detail-size-options .size-btn")) {
-            document
-              .querySelectorAll("#detail-size-options .size-btn")
-              .forEach((btn) =>
-                btn.classList.remove("bg-green-600", "text-white")
-              );
-            e.target.classList.add("bg-green-600", "text-white");
-            selectedSize = e.target.dataset.size;
-            const price = calculatePrice(
-              currentDetailProduct.price,
-              selectedSize,
-              currentDetailProduct.id // Pass productId to calculatePrice
-            );
-            dom.detailProductPrice.textContent = formatCurrency(price);
-            
-            // Update strikethrough price if applicable
-            if (currentDetailProduct.strikethroughPrice) {
-                const strikethroughPrice = calculatePrice(currentDetailProduct.strikethroughPrice, selectedSize, currentDetailProduct.id);
-                dom.detailNormalPrice.textContent = formatCurrency(strikethroughPrice);
-                dom.detailNormalPrice.style.display = 'inline';
-            } else {
-                dom.detailNormalPrice.style.display = 'none';
-            }
-
-            renderDetailActionButtons(); // Re-render button to enable quantity if a size is selected
-            return;
-        }
-
-        // --- Handling Option Choices in Product Detail (Already existed, but moved here for consistency) ---
-        if (e.target.matches("#detail-option-options .option-btn")) {
-            document
-              .querySelectorAll("#detail-option-options .option-btn")
-              .forEach((btn) =>
-                btn.classList.remove("bg-green-600", "text-white")
-              );
-            e.target.classList.add("bg-green-600", "text-white");
-            selectedOption = e.target.dataset.option;
-            renderDetailActionButtons(); // Re-render button to enable quantity if an option is selected
-            return;
-        }
-
-        // --- Handling Size Options in Maba Bundle Modal ---
-        if (e.target.matches('#bundle-maba-jaslab-size-options .size-btn')) {
-            dom.bundleMabaJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
-            e.target.classList.add("bg-green-600", "text-white");
-            promoJaslabMabaSize = e.target.dataset.size;
-            updateBundleMabaPrices();
-            return;
-        }
-        if (e.target.matches('#bundle-maba-workshirt-kp-size-options .size-btn')) {
-            dom.bundleMabaWorkshirtKpSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
-            e.target.classList.add("bg-green-600", "text-white");
-            promoWorkshirtKpMabaSize = e.target.dataset.size;
-            updateBundleMabaPrices();
-            return;
-        }
-
-        // --- Handling Size Options in Anak Metal Bundle Modal ---
-        if (e.target.matches('#bundle-anak-metal-jaslab-size-options .size-btn')) {
-            dom.bundleAnakMetalJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
-            e.target.classList.add("bg-green-600", "text-white");
-            promoJaslabAnakMetalSize = e.target.dataset.size;
-            updateBundleAnakMetalPrices();
+        const updateQuantityBtn = e.target.closest(".update-cart-quantity-btn");
+        if (updateQuantityBtn) {
+            const cartItemId = updateQuantityBtn.dataset.cartItemId;
+            const change = parseInt(updateQuantityBtn.dataset.change);
+            updateCartQuantity(cartItemId, change);
             return;
         }
 
         // --- Handling General Close Modal Button ---
         const closeModalBtn = e.target.closest(".close-modal-btn");
         if (closeModalBtn) {
-            clearInterval(countdownInterval); // Ensure countdown stops if active
             toggleModal(document.getElementById(closeModalBtn.dataset.modalId), false);
             return;
         }
-    });
-
-    // Image navigation listeners in product detail
-    dom.prevImageBtn.addEventListener("click", () => {
-      currentImageIndex =
-        (currentImageIndex - 1 + currentDetailProduct.detailImages.length) %
-        currentDetailProduct.detailImages.length;
-      renderProductImages();
-    });
-
-    dom.nextImageBtn.addEventListener("click", () => {
-      currentImageIndex =
-        (currentImageIndex + 1) % currentDetailProduct.detailImages.length;
-      renderProductImages();
     });
 
     dom.openCartBtn.addEventListener("click", () =>
@@ -2060,65 +1050,11 @@
     dom.checkoutBtn.addEventListener("click", () => {
       if (cart.length > 0) {
         toggleModal(dom.cartModal, false);
-        // Show/hide "Nama untuk Bordir" field based on cart content
-        if (hasBordirItemsInCart()) {
-            dom.bordirNameContainer.style.display = 'block';
-            dom.bordirNameInput.setAttribute('required', ''); // Make it required
-        } else {
-            dom.bordirNameContainer.style.display = 'none';
-            dom.bordirNameInput.value = ''; // Clear value if not needed
-            dom.bordirNameInput.removeAttribute('required'); // Make it optional
-        }
-        toggleModal(dom.customerDataModal, true);
+        window.location.href = 'customer_data.html'; // Redirect to customer data page
+      } else {
+          showCustomAlert("Keranjang belanja Anda kosong. Silakan tambahkan produk terlebih dahulu.");
       }
     });
-
-    // Toggle shipping address input based on radio button selection
-    dom.deliveryOption.addEventListener('change', () => {
-        dom.addressInputContainer.style.display = dom.deliveryOption.checked ? 'block' : 'none';
-        // Set required attribute for address fields if delivery is selected
-        dom.addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
-            if (dom.deliveryOption.checked) {
-                input.setAttribute('required', '');
-            } else {
-                input.removeAttribute('required');
-                input.value = ''; // Clear value if not needed
-            }
-        });
-    });
-
-    dom.pickupOption.addEventListener('change', () => {
-        dom.addressInputContainer.style.display = 'none';
-        // Remove required attribute and clear values if pickup is selected
-        dom.addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
-            input.removeAttribute('required');
-            input.value = '';
-        });
-    });
-
-
-    dom.customerForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      populateConfirmationPage(new FormData(e.target));
-      toggleModal(dom.customerDataModal, false);
-      toggleModal(dom.paymentModal, true);
-      startCountdown();
-    });
-
-    // Enable/disable payment completion button based on file input
-    dom.paymentProofInput.addEventListener('change', (e) => {
-        paymentProofFile = e.target.files[0];
-        // Jika Cloudinary dinonaktifkan, tombol selalu aktif.
-        // Jika Cloudinary aktif, aktifkan tombol jika ada file.
-        if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '') {
-            dom.finishPaymentBtn.disabled = !paymentProofFile;
-        } else {
-            dom.finishPaymentBtn.disabled = false; // Always enabled if Cloudinary is off
-        }
-    });
-
-
-    dom.finishPaymentBtn.addEventListener("click", submitOrder);
 
     // Product Overview Modal Event Listener
     dom.closeProductOverviewModalBtn.addEventListener("click", () => {
@@ -2127,174 +1063,43 @@
 
     // Handle clicks on promo items in overview modal and main promo section
     const handlePromoClick = (e) => {
-        const promoItem = e.target.closest(".product-overview-item, #main-promo-card, #main-promo-anak-metal-card");
+        const promoItem = e.target.closest(".product-overview-item, #main-promo-card");
         if (promoItem) {
             const promoId = promoItem.dataset.promoId;
             toggleModal(dom.productOverviewModal, false); // Close overview modal
 
-            if (promoId === 'maba') {
-                // Open Maba bundle promo modal
-                const jaslabProduct = allProducts.find(p => p.id === 1);
-                const workshirtKpProduct = allProducts.find(p => p.id === 2);
-
-                if (jaslabProduct && workshirtKpProduct) {
-                    dom.bundleMabaJaslabSizeOptions.innerHTML = jaslabProduct.sizes.map(size =>
-                        `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
-                    ).join("");
-                    dom.bundleMabaWorkshirtKpSizeOptions.innerHTML = workshirtKpProduct.sizes.map(size =>
-                        `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
-                    ).join("");
-                    
-                    promoJaslabMabaSize = null; // Reset selection
-                    promoWorkshirtKpMabaSize = null; // Reset selection
-                    updateBundleMabaPrices(); // Update prices for the first time
-                    dom.addBundleMabaToCartBtn.disabled = true; // Disable button until size is selected
-
-                    toggleModal(dom.bundlePromoMabaModal, true);
-                }
-            } else if (promoId === 'anak-metal') {
-                // Open Anak Metal bundle promo modal
-                const jaslabProduct = allProducts.find(p => p.id === 1);
-
-                if (jaslabProduct) {
-                    dom.bundleAnakMetalJaslabSizeOptions.innerHTML = jaslabProduct.sizes.map(size =>
-                        `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
-                    ).join("");
-                    
-                    promoJaslabAnakMetalSize = null; // Reset selection
-                    updateBundleAnakMetalPrices(); // Update prices for the first time
-                    dom.addBundleAnakMetalToCartBtn.disabled = true; // Disable button until size is selected
-
-                    toggleModal(dom.bundlePromoAnakMetalModal, true);
-                }
-            }
+            // Redirect to the generic bundle detail page with the bundle ID
+            window.location.href = `bundle_detail.html?id=${promoId}`;
         }
     };
 
     dom.productOverviewModal.addEventListener("click", handlePromoClick);
-    dom.mainPromoCardMaba.addEventListener("click", handlePromoClick); // Add listener to main Early Bird promo card
-    dom.mainPromoCardAnakMetal.addEventListener("click", handlePromoClick); // Add listener to main Gue Anak Metal! promo card
+    dom.mainPromoCardSimak.addEventListener("click", handlePromoClick); // Add listener to main SIMAK promo card
 
-
-    // Handle adding the Early Bird Maba bundle to cart
-    dom.addBundleMabaToCartBtn.addEventListener('click', () => {
-        if (promoJaslabMabaSize && promoWorkshirtKpMabaSize) {
-            const jaslabProduct = allProducts.find(p => p.id === 1);
-            const workshirtKpProduct = allProducts.find(p => p.id === 2);
-            const gamtekProduct = allProducts.find(p => p.id === 8);
-            const keychainImmtProduct = allProducts.find(p => p.id === 6);
-            const keychainMakaraProduct = allProducts.find(p => p.id === 7);
-            const stickerMobilProduct = allProducts.find(p => p.id === 5);
-
-            // Calculate individual item prices for bundleDetails
-            const jaslabPrice = calculatePrice(jaslabProduct.price, promoJaslabMabaSize, jaslabProduct.id);
-            const workshirtKpPrice = calculatePrice(workshirtKpProduct.price, promoWorkshirtKpMabaSize, workshirtKpProduct.id);
-            const gamtekPrice = gamtekProduct.price;
-            const keychainImmtPrice = keychainImmtProduct.price; // Individual price
-            const keychainMakaraPrice = keychainMakaraProduct.price;
-            const stickerMobilPrice = stickerMobilProduct.price; // Individual price
-
-
-            const bundleDetails = [
-                { id: jaslabProduct.id, name: jaslabProduct.name, size: promoJaslabMabaSize, option: null, quantity: 1, price: jaslabPrice },
-                { id: workshirtKpProduct.id, name: workshirtKpProduct.name, size: promoWorkshirtKpMabaSize, option: null, quantity: 1, price: workshirtKpPrice },
-                { id: gamtekProduct.id, name: gamtekProduct.name, size: null, option: null, quantity: 1, price: gamtekPrice },
-                { id: keychainImmtProduct.id, name: keychainImmtProduct.name, size: null, option: "Keychain Kain Bordir", quantity: 1, price: keychainImmtPrice },
-                { id: keychainImmtProduct.id, name: keychainImmtProduct.name, size: null, option: "Keychain Akrilik", quantity: 1, price: keychainImmtPrice },
-                { id: keychainMakaraProduct.id, name: keychainMakaraProduct.name, size: null, option: null, quantity: 1, price: keychainMakaraPrice },
-                { id: stickerMobilProduct.id, name: stickerMobilProduct.name, size: null, option: "Stiker Fakultas Teknik", quantity: 1, price: stickerMobilPrice },
-                { id: stickerMobilProduct.id, name: stickerMobilProduct.name, size: null, option: "Stiker Metalurgi", quantity: 1, price: stickerMobilPrice }
-            ];
-
-            // Calculate total price of bundle before discount
-            let totalBundlePriceBeforeDiscount = bundleDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            // Apply the fixed bundle discount
-            const finalBundlePrice = totalBundlePriceBeforeDiscount - BUNDLE_DISCOUNT_AMOUNT;
-
-            const bundleCartItem = {
-                cartItemId: 'bundle-early-bird-maba', // Unique ID for this bundle type in cart
-                id: 'bundle-early-bird-maba-id', // Generic ID for bundle recognition
-                name: 'Early Bird Tahun Ajaran Baru Bundle',
-                image: 'assets/promo-maba.jpg',
-                quantity: 1,
-                finalPrice: finalBundlePrice, // This is the total price displayed in cart
-                isBundle: true,
-                bundleDetails: bundleDetails // Detailed list for Firebase & payment summary
-            };
-            cart.push(bundleCartItem);
-            updateUI(); // Call updateUI to refresh cart display
-            
-            toggleModal(dom.bundlePromoMabaModal, false);
-            toggleModal(dom.cartModal, true); // Show cart with all item
-            showCustomAlert("Bundle Early Bird Tahun Ajaran Baru telah ditambahkan ke keranjang Anda!");
-        } else {
-            showCustomAlert("Please select Jaslab and Workshirt KP sizes first.");
-        }
-    });
-
-    // Handle adding the Gue Anak Metal! bundle to cart
-    dom.addBundleAnakMetalToCartBtn.addEventListener('click', () => {
-        if (promoJaslabAnakMetalSize) {
-            const jaslabProduct = allProducts.find(p => p.id === 1);
-            const topiImmtProduct = allProducts.find(p => p.id === 9);
-            const keychainImmtProduct = allProducts.find(p => p.id === 6);
-
-            // Calculate individual item prices for bundleDetails
-            const jaslabPrice = calculatePrice(jaslabProduct.price, promoJaslabAnakMetalSize, jaslabProduct.id);
-            const topiImmtPrice = topiImmtProduct.price;
-            const keychainImmtPrice = keychainImmtProduct.price; // Individual price
-
-            const bundleDetails = [
-                { id: jaslabProduct.id, name: jaslabProduct.name, size: promoJaslabAnakMetalSize, option: null, quantity: 1, price: jaslabPrice },
-                { id: topiImmtProduct.id, name: topiImmtProduct.name, size: null, option: null, quantity: 1, price: topiImmtPrice },
-                { id: keychainImmtProduct.id, name: keychainImmtProduct.name, size: null, option: "Keychain Kain Bordir", quantity: 1, price: keychainImmtPrice },
-                { id: keychainImmtProduct.id, name: keychainImmtProduct.name, size: null, option: "Keychain Akrilik", quantity: 1, price: keychainImmtPrice }
-            ];
-
-            // Calculate total price of bundle before discount
-            let totalBundlePriceBeforeDiscount = bundleDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            // Apply the fixed bundle discount
-            const finalBundlePrice = totalBundlePriceBeforeDiscount - BUNDLE_DISCOUNT_AMOUNT;
-
-            const bundleCartItem = {
-                cartItemId: 'bundle-gue-anak-metal', // Unique ID for this bundle type in cart
-                id: 'bundle-gue-anak-metal-id', // Generic ID for bundle recognition
-                name: 'Gue Anak Metal! Bundle',
-                image: 'assets/promo-anak-metal-1.jpg',
-                quantity: 1,
-                finalPrice: finalBundlePrice, // This is the total price displayed in cart
-                isBundle: true,
-                bundleDetails: bundleDetails // Detailed list for Firebase & payment summary
-            };
-            cart.push(bundleCartItem);
-            updateUI(); // Call updateUI to refresh cart display
-            
-            toggleModal(dom.bundlePromoAnakMetalModal, false); // Close Anak Metal modal
-            toggleModal(dom.cartModal, true); // Show cart with all items
-            showCustomAlert("Bundle Gue Anak Metal! has been added to your cart!");
-        } else {
-            showCustomAlert("Please select Jaslab size first.");
-        }
-    });
 
     // Search functionality
     dom.searchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        // Filter only products marked `inBundle: true`
-        filteredProducts = products.filter(product =>
-            product.name.toLowerCase().includes(searchTerm)
+        // Filter only products (exclude bundles from main product grid search)
+        filteredProducts = allProducts.filter(product =>
+            !product.isBundle && product.name.toLowerCase().includes(searchTerm)
         );
         renderProducts(filteredProducts);
     });
 
     // Initial setup when page loads
+    loadCart(); // Load cart from localStorage
     updateUI();
-    // Jika Cloudinary dinonaktifkan, pastikan tombol pembayaran selalu aktif
-    if (CLOUDINARY_CLOUD_NAME === '' || CLOUDINARY_UPLOAD_PRESET === '') {
-        dom.finishPaymentBtn.disabled = false;
+    // If Cloudinary is disabled, ensure the finish payment button is always active (this is now irrelevant for index.html)
+    // toggleModal(dom.productOverviewModal, true); // Show product overview modal on load
+
+    // Check for hash in URL to open cart modal on page load
+    if (window.location.hash === '#cart') {
+        toggleModal(dom.cartModal, true);
+        // Clear the hash to prevent it from reopening on refresh
+        history.replaceState(null, null, ' ');
     }
-    toggleModal(dom.productOverviewModal, true); // Show product overview modal on load
-  });
+   });
   </script>
  </body>
 </html>

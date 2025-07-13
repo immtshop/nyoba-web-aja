@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Data Diri & Pengiriman - IMMt SHOP
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/lucide-react@latest/dist/lucide-react.js">
+  </script>
+  <script src="https://unpkg.com/lucide@latest">
+  </script>
+  <style>
+   body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+      }
+      /* Custom styles for Shopee-like header */
+      .shopee-header {
+        background-color: #000000; /* Green accent */
+        color: white;
+        padding: 0.75rem 1rem; /* Adjust padding */
+      }
+
+      .shopee-header .logo-text {
+        color: white; /* Ensure text is white for contrast */
+      }
+
+      .shopee-header .search-bar {
+        flex-grow: 1;
+        margin: 0 1rem;
+      }
+
+      .shopee-header .search-input {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding-left: 2.5rem; /* For icon */
+        padding-right: 0.75rem;
+        border-radius: 0.375rem; /* Tailwind 'rounded-lg' */
+      }
+
+      .shopee-header .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .shopee-header .search-icon {
+        color: white;
+      }
+
+      .shopee-header .cart-button {
+        background-color: transparent; /* No specific background for cart button */
+      }
+
+      .shopee-header .cart-button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Styles for `bg-indigo-600` and `hover:bg-indigo-700` and `focus:ring-indigo-500` to be green */
+      .bg-indigo-600 { background-color: #059669 !important; }
+      .hover\:bg-indigo-700:hover { background-color: #047857 !important; }
+      .focus\:ring-indigo-500:focus { box-shadow: 0 0 0 2px #047857 !important; }
+
+      /* Custom alert modal */
+      .custom-alert-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+      }
+  </style>
+ </head>
+ <body class="antialiased text-gray-800">
+  <header class="shopee-header sticky top-0 z-40">
+   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 sm:h-20">
+     <a class="flex items-center gap-2" href="index.html">
+      <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=Logo';" src="assets/logo.jpg"/>
+      <span class="text-xl font-bold logo-text hidden sm:block">
+       IMMt SHOP
+      </span>
+     </a>
+     <div class="flex-1 search-bar">
+      <div class="relative">
+       <input class="w-full pl-10 pr-4 py-2 search-input text-sm sm:text-base" id="search-input" placeholder="Cari produk di IMMt SHOP..." type="text" disabled/>
+       <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="w-5 h-5 search-icon" data-lucide="search">
+        </i>
+       </div>
+      </div>
+     </div>
+     <div class="flex items-center gap-2 sm:gap-4">
+      <button class="relative flex items-center p-2 rounded-full cart-button" id="open-cart-btn">
+       <i class="w-6 h-6 text-white" data-lucide="shopping-cart">
+       </i>
+       <span class="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full" id="cart-count-badge">
+        0
+       </span>
+      </button>
+     </div>
+    </div>
+   </div>
+  </header>
+  <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+   <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto p-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+     Data Diri & Pengiriman
+    </h2>
+    <form class="space-y-6" id="customer-form">
+     <label class="block">
+      <span class="text-sm font-medium text-gray-700">
+       Nama Lengkap*
+      </span>
+      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama" required="" type="text"/>
+     </label>
+     <label class="block">
+      <span class="text-sm font-medium text-gray-700">
+       Email*
+      </span>
+      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Email" required="" type="email"/>
+     </label>
+     <label class="block" id="bordir-name-container" style="display: none;">
+      <span class="text-sm font-medium text-gray-700">
+       Nama untuk Bordir (Wajib diisi)
+      </span>
+      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama untuk Bordir" type="text" />
+     </label>
+     <label class="block">
+      <span class="text-sm font-medium text-gray-700">
+       ID Line / No. Whatsapp*
+      </span>
+      <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kontak" required="" type="text"/>
+     </label>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       Angkatan*
+      </label>
+      <div class="mt-2 space-y-2">
+       <div class="flex items-center">
+        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2022"/>
+        <label class="ml-3 text-sm text-gray-700">
+         2022
+        </label>
+       </div>
+       <div class="flex items-center">
+        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2023"/>
+        <label class="ml-3 text-sm text-gray-700">
+         2023
+        </label>
+       </div>
+       <div class="flex items-center">
+        <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2024"/>
+        <label class="ml-3 text-sm text-gray-700">
+         2024
+        </label>
+       </div>
+       <div class="flex items-center">
+        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2025"/>
+        <label class="ml-3 text-sm text-gray-700">
+         2025
+        </label>
+       </div>
+       <div class="flex items-center">
+        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="Non Civitas"/>
+        <label class="ml-3 text-sm text-gray-700">
+         Non Civitas
+        </label>
+       </div>
+      </div>
+     </div>
+     <div>
+      <label class="block text-sm font-medium text-gray-700">
+       Opsi Pengambilan Barang*
+      </label>
+      <div class="mt-2 space-y-2">
+       <div class="flex items-center">
+        <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Ambil di lingkungan FTUI" id="pickup-option"/>
+        <label class="ml-3 text-sm text-gray-700">
+         Ambil di lingkungan FTUI
+        </label>
+       </div>
+       <div class="flex items-center">
+        <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Dikirim ke Alamat" id="delivery-option"/>
+        <label class="ml-3 text-sm text-gray-700">
+         Kirim ke Alamat
+        </label>
+       </div>
+      </div>
+      <div id="address-input-container" class="mt-4" style="display: none;">
+        <label class="block">
+          <span class="text-sm font-medium text-gray-700">Alamat Pengiriman Lengkap*</span>
+          <textarea class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Alamat Pengiriman" rows="3"></textarea>
+        </label>
+        <label class="block mt-4">
+          <span class="text-sm font-medium text-gray-700">Provinsi*</span>
+          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Provinsi" type="text"/>
+        </label>
+        <label class="block mt-4">
+          <span class="text-sm font-medium text-gray-700">Kota/Kabupaten*</span>
+          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kota/Kabupaten" type="text"/>
+        </label>
+        <label class="block mt-4">
+          <span class="text-sm font-medium text-gray-700">Kode Pos*</span>
+          <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kode Pos" type="text"/>
+        </label>
+        <!-- Ongkos kirim disclaimer -->
+        <p class="text-sm text-gray-500 mt-4">
+            Mohon diperhatikan bahwa harga yang tertera belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian.
+        </p>
+      </div>
+     </div>
+     <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" type="submit">
+      Lanjutkan ke Pembayaran
+     </button>
+    </form>
+   </div>
+  </main>
+  <footer class="bg-gray-800 text-white mt-8">
+   <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+    <p>
+     © 2025 IMMt SHOP. All rights reserved
+    </p>
+   </div>
+  </footer>
+
+  <!-- Custom Alert Modal Structure -->
+  <div class="custom-alert-overlay hidden" id="custom-alert-modal">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
+        <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+        <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
+    </div>
+  </div>
+
+  <script>
+   document.addEventListener("DOMContentLoaded", () => {
+    // Definisi semua produk (harus sama dengan di index.html dan product_detail.html)
+    const allProducts = [
+      {
+        id: 1,
+        name: "Jas laboratorium",
+        price: 140000, // Original price
+        strikethroughPrice: 160000, // New strikethrough price
+        description: "Jas Laboratorium berkualitas tinggi, dengan berbasis bahan american drill yang ketika dipakai akan terasa nyaman dan tidak panas. Wajib bagi setiap mahasiswa Metalurgi pada saat praktikum. Dilengkapi dengan bordir nama pada sisi kanan dan logo IMMt pada sisi kiri dada.",
+        image: "assets/jaslab-1.jpg",
+        hasSizes: true,
+        sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], // Added more sizes
+        detailImages: [
+          "assets/jaslab-1.jpg",
+          "assets/jaslab-2.jpg",
+          "assets/size-chart-a.jpg",
+        ],
+        inBundle: true,
+      },
+      {
+        id: 2,
+        name: "Workshirt Kerja Praktik",
+        price: 160000, // Original price
+        strikethroughPrice: 175000, // New strikethrough price
+        description: "Workshirt nyaman dan stylish untuk kegiatan kerja praktik Anda. Bahan kuat dan tahan lama yang siap dipakai kerja praktik anda.",
+        image: "assets/workshirt-kp-1.jpg",
+        hasSizes: true,
+        sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"],
+        detailImages: [
+          "assets/workshirt-kp-1.jpg",
+          "assets/workshirt-kp-2.jpg",
+          "assets/size-chart-b.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      {
+        id: 3,
+        name: "Workshirt Metalurgi",
+        price: 179000,
+        description: "Tunjukkan kebanggaan Anda sebagai mahasiswa metalurgi dengan workshirt eksklusif ini.",
+        image: "assets/workshirt-metal-1.jpg",
+        hasSizes: true,
+        sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+        detailImages: [
+          "assets/workshirt-metal-1.jpg",
+          "assets/workshirt-metal-2.jpg",
+          "assets/size-chart-c.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      {
+        id: 4,
+        name: "Sticker (3pcs)",
+        price: 15000,
+        description: "Paket 3 stiker unik dengan desain IMMt. Cocok untuk laptop, buku, atau dimanapun.",
+        image: "assets/sticker-pack-1.jpg",
+        hasSizes: false,
+        detailImages: [
+          "assets/sticker-pack-1.jpg",
+          "assets/sticker-pack-2.jpg",
+        ],
+        inBundle: true, // In SIMAK bundle
+      },
+      {
+        id: 5,
+        name: "Sticker mobil",
+        price: 15000,
+        description: "Stiker khusus untuk mobil Anda, tunjukkan identitas bahwa anda adalah bagian dari Teknik Metalurgi!",
+        image: "assets/sticker-mobil-1.jpg",
+        hasSizes: false,
+        hasOptions: true, // New property for options
+        options: ["Stiker Fakultas Teknik", "Stiker Metalurgi"], // New options for sticker mobil
+        detailImages: [
+          "assets/sticker-mobil-1.jpg",
+          "assets/sticker-mobil-2.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      {
+        id: 6,
+        name: "Keychain IMMt",
+        price: 15000,
+        description: "Gantungan kunci eksklusif IMMt, tersedia dalam dua desain unik. Pilih favorit Anda!",
+        image: "assets/keychain-immt-1.jpg",
+        hasSizes: false,
+        hasOptions: true, // New property for options
+        options: ["Keychain Kain Bordir", "Keychain Akrilik"], // New options
+        detailImages: [
+          "assets/keychain-immt-1.jpg",
+          "assets/keychain-immt-2.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      {
+        id: 7,
+        name: "Keychain Makara FTUI",
+        price: 15000,
+        description: "Gantungan kunci Makara UI, simbol kebanggaan kami sebagai anak Teknik!",
+        image: "assets/keychain-makara-1.jpg",
+        hasSizes: false,
+        detailImages: [
+          "assets/keychain-makara-1.jpg",
+          "assets/keychain-makara-2.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      {
+        id: 8,
+        name: "Paket Alat Gamtek",
+        price: 250000,
+        description: "Paket lengkap alat gambar teknik untuk menunjang kebutuhan perkuliahan Anda ketika menghadapi mata kuliah gambar teknik!<br>Paket Gamtek Berisikan :<br>1. Tabung Gamtek 64 CM<br>2. Penggaris<br>3. Penggaris MOR<br>4. Penghapus<br>5. Mal Huruf 3 & 6 mm<br>6. Mal lingkaran<br>7. Pensil Mekanik 0.5 & 0.7<br> 8. Isi Pensil 0.5 & 0.7<br> 9. Jangka<br>10. Buku Gambar A3<br> 11. Buku MM Block",
+        image: "assets/gamtek-1.jpg",
+        hasSizes: false,
+        detailImages: [
+          "assets/gamtek-1.jpg",
+          "assets/gamtek-2.jpg",
+          "assets/gamtek-3.jpg",
+          "assets/gamtek-4.jpg",
+          "assets/gamtek-5.jpg",
+          "assets/gamtek-6.jpg",
+          "assets/gamtek-7.jpg",
+          "assets/gamtek-8.jpg",
+          "assets/gamtek-9.jpg",
+          "assets/gamtek-10.jpg",
+          "assets/gamtek-11.jpg",
+          "assets/gamtek-12.jpg",
+        ],
+        inBundle: false, // Not in SIMAK bundle
+      },
+      { // New Product: Topi
+        id: 9,
+        name: "Topi Metalurgi",
+        price: 35000, // Updated price
+        description: "Topi stylish dengan design yang sangat menarik, cocok untuk kegiatan sehari-hari menerjang panas dan hujan.",
+        image: "assets/topi-immt-1.jpg",
+        hasSizes: false,
+        detailImages: [
+          "assets/topi-immt-1.jpg",
+          "assets/topi-immt-2.jpg",
+        ],
+        inBundle: true, // In SIMAK bundle
+      },
+    ];
+
+    let cart = [];
+
+    const dom = {
+      openCartBtn: document.getElementById("open-cart-btn"),
+      cartCountBadge: document.getElementById("cart-count-badge"),
+      customerForm: document.getElementById("customer-form"),
+      deliveryOption: document.getElementById("delivery-option"),
+      pickupOption: document.getElementById("pickup-option"),
+      addressInputContainer: document.getElementById("address-input-container"),
+      bordirNameContainer: document.getElementById("bordir-name-container"),
+      bordirNameInput: document.querySelector('#bordir-name-container input[name="Nama untuk Bordir"]'),
+      customAlertModal: document.getElementById("custom-alert-modal"),
+      customAlertMessage: document.getElementById("custom-alert-message"),
+      closeAlertBtn: document.getElementById("close-alert-btn"),
+    };
+
+    // Helper function to format currency (not strictly needed here but good for consistency)
+    const formatCurrency = (n) =>
+      new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+      }).format(n);
+
+    // Custom alert modal implementation
+    const showCustomAlert = (message) => {
+        dom.customAlertMessage.textContent = message;
+        dom.customAlertModal.classList.remove('hidden');
+    };
+
+    dom.closeAlertBtn.addEventListener('click', () => {
+        dom.customAlertModal.classList.add('hidden');
+    });
+
+    // Function to load cart from localStorage
+    const loadCart = () => {
+        const storedCart = localStorage.getItem('immtShopCart');
+        cart = storedCart ? JSON.parse(storedCart) : [];
+    };
+
+    // Function to save cart to localStorage
+    const saveCart = () => {
+        localStorage.setItem('immtShopCart', JSON.stringify(cart));
+    };
+
+    const updateCartCountBadge = () => {
+      let itemCount = 0;
+      cart.forEach(item => {
+        itemCount += item.quantity;
+      });
+      dom.cartCountBadge.textContent = itemCount;
+    };
+
+    // Function to check if any item in the cart requires embroidery
+    const hasBordirItemsInCart = () => {
+        // Product IDs that require embroidery (Jas laboratorium, Workshirt Kerja Praktik, Workshirt Metalurgi)
+        const bordirProductIds = [1, 2, 3]; 
+
+        for (const item of cart) {
+            if (item.isBundle) {
+                // Check if any product in bundleDetails requires embroidery
+                if (item.bundleDetails.some(detail => bordirProductIds.includes(detail.id))) {
+                    return true;
+                }
+            } else {
+                // Check if an individual product requires embroidery
+                if (bordirProductIds.includes(item.id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    // Event Listeners
+    dom.openCartBtn.addEventListener("click", () => {
+      window.location.href = 'index.html#cart'; // Redirect to index.html and open cart modal
+    });
+
+    // Toggle shipping address input based on radio button selection
+    dom.deliveryOption.addEventListener('change', () => {
+        dom.addressInputContainer.style.display = dom.deliveryOption.checked ? 'block' : 'none';
+        // Set required attribute for address fields if delivery is selected
+        dom.addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
+            if (dom.deliveryOption.checked) {
+                input.setAttribute('required', '');
+            } else {
+                input.removeAttribute('required');
+                input.value = ''; // Clear value if not needed
+            }
+        });
+    });
+
+    dom.pickupOption.addEventListener('change', () => {
+        dom.addressInputContainer.style.display = 'none';
+        // Remove required attribute and clear values if pickup is selected
+        dom.addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
+            input.removeAttribute('required');
+            input.value = '';
+        });
+    });
+
+    dom.customerForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const customerData = {};
+      formData.forEach((value, key) => {
+        customerData[key] = value;
+      });
+
+      // Save customer data to localStorage
+      localStorage.setItem('immtShopCustomerData', JSON.stringify(customerData));
+
+      // Redirect to payment page
+      window.location.href = 'payment.html';
+    });
+
+    // Initial load
+    loadCart(); // Load cart on page load
+    updateCartCountBadge(); // Update cart badge
+
+    // Check if cart is empty, if so, redirect back to index
+    if (cart.length === 0) {
+        showCustomAlert("Keranjang belanja Anda kosong. Silakan tambahkan produk terlebih dahulu.");
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+        return; // Stop execution
+    }
+
+    // Show/hide "Nama untuk Bordir" field based on cart content
+    if (hasBordirItemsInCart()) {
+        dom.bordirNameContainer.style.display = 'block';
+        dom.bordirNameInput.setAttribute('required', ''); // Make it required
+    } else {
+        dom.bordirNameContainer.style.display = 'none';
+        dom.bordirNameInput.value = ''; // Clear value if not needed
+        dom.bordirNameInput.removeAttribute('required'); // Make it optional
+    }
+
+    // Pre-fill form if customer data exists in localStorage
+    const storedCustomerData = localStorage.getItem('immtShopCustomerData');
+    if (storedCustomerData) {
+        const parsedData = JSON.parse(storedCustomerData);
+        for (const key in parsedData) {
+            const input = dom.customerForm.elements[key];
+            if (input) {
+                if (input.type === 'radio') {
+                    // Handle radio buttons
+                    const radios = dom.customerForm.elements[key];
+                    for (let i = 0; i < radios.length; i++) {
+                        if (radios[i].value === parsedData[key]) {
+                            radios[i].checked = true;
+                            // Trigger change event for delivery option to show/hide address fields
+                            if (key === 'Pengiriman') {
+                                radios[i].dispatchEvent(new Event('change'));
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    input.value = parsedData[key];
+                }
+            }
+        }
+         // Manually trigger change for delivery option if it was "Dikirim ke Alamat"
+         if (parsedData.Pengiriman === "Dikirim ke Alamat") {
+            dom.deliveryOption.checked = true;
+            dom.deliveryOption.dispatchEvent(new Event('change'));
+        }
+    }
+   });
+  </script>
+ </body>
+</html>

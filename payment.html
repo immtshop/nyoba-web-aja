@@ -1,0 +1,787 @@
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>
+    Konfirmasi & Pembayaran - IMMt SHOP
+    </title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/lucide-react@latest/dist/lucide-react.js">
+    </script>
+    <script src="https://unpkg.com/lucide@latest">
+    </script>
+    <!-- Firebase SDKs (hanya Firestore yang masih digunakan untuk data pesanan) -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js">
+    </script>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            // Ganti 'YOUR_PUBLIC_KEY' dengan Public Key EmailJS Anda
+            emailjs.init("7aaVlYJKN8iou8I14");
+        })();
+    </script>
+    <style>
+    body {
+            font-family: "Inter", sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom styles for Shopee-like header */
+        .shopee-header {
+            background-color: #000000; /* Green accent */
+            color: white;
+            padding: 0.75rem 1rem; /* Adjust padding */
+        }
+
+        .shopee-header .logo-text {
+            color: white; /* Ensure text is white for contrast */
+        }
+
+        .shopee-header .search-bar {
+            flex-grow: 1;
+            margin: 0 1rem;
+        }
+
+        .shopee-header .search-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding-left: 2.5rem; /* For icon */
+            padding-right: 0.75rem;
+            border-radius: 0.375rem; /* Tailwind 'rounded-lg' */
+        }
+
+        .shopee-header .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .shopee-header .search-icon {
+            color: white;
+        }
+
+        .shopee-header .cart-button {
+            background-color: transparent; /* No specific background for cart button */
+        }
+
+        .shopee-header .cart-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styles for `bg-indigo-600` and `hover:bg-indigo-700` and `focus:ring-indigo-500` to be green */
+        .bg-indigo-600 { background-color: #059669 !important; }
+        .hover\:bg-indigo-700:hover { background-color: #047857 !important; }
+        .focus\:ring-indigo-500:focus { box-shadow: 0 0 0 2px #047857 !important; }
+
+        /* Style untuk Animasi Centang */
+        .success-animation-circle {
+            stroke-dasharray: 264;
+            stroke-dashoffset: 264;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .success-animation-checkmark {
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        @keyframes stroke {
+            100% {
+            stroke-dashoffset: 0;
+            }
+        }
+
+        /* Custom alert modal */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+    </style>
+    </head>
+    <body class="antialiased text-gray-800">
+    <header class="shopee-header sticky top-0 z-40">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20">
+        <a class="flex items-center gap-2" href="index.html">
+        <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=Logo';" src="assets/logo.jpg"/>
+        <span class="text-xl font-bold logo-text hidden sm:block">
+        IMMt SHOP
+        </span>
+        </a>
+        <div class="flex-1 search-bar">
+        <div class="relative">
+        <input class="w-full pl-10 pr-4 py-2 search-input text-sm sm:text-base" id="search-input" placeholder="Cari produk di IMMt SHOP..." type="text" disabled/>
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="w-5 h-5 search-icon" data-lucide="search">
+            </i>
+        </div>
+        </div>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-4">
+        <button class="relative flex items-center p-2 rounded-full cart-button" id="open-cart-btn">
+        <i class="w-6 h-6 text-white" data-lucide="shopping-cart">
+        </i>
+        <span class="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full" id="cart-count-badge">
+            0
+        </span>
+        </button>
+        </div>
+        </div>
+    </div>
+    </header>
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+        Konfirmasi & Pembayaran
+        </h2>
+        <div class="md:grid md:grid-cols-2 gap-6">
+        <div class="p-4 border-b md:border-b-0 md:border-r">
+        <h3 class="text-xl font-bold mb-4">
+        Rincian Pesanan
+        </h3>
+        <div class="max-h-60 overflow-y-auto pr-2 space-y-3" id="order-summary-items">
+        </div>
+        <div class="mt-4 pt-4 border-t font-bold flex justify-between">
+        <span>
+            Total Pembayaran:
+        </span>
+        <span id="order-summary-total">
+        </span>
+        </div>
+        <h3 class="text-xl font-bold mt-6 mb-4">
+        Data Pemesan
+        </h3>
+        <div class="text-sm space-y-2" id="customer-data-summary">
+        </div>
+        </div>
+        <div class="p-4 text-center flex flex-col items-center justify-center">
+        <h3 class="text-xl font-bold">
+        Pindai untuk Membayar
+        </h3>
+        <p class="text-sm text-gray-500 mt-1">
+        Gunakan aplikasi pembayaran apa pun yang mendukung QRIS.<br><br>Metode Lainnya :<br>Transfer Bank BCA 3420733657 a/n Dafa Rifaqi Firdarezki
+        </p>
+        <div class="bg-gray-200 my-4 w-64 h-64 flex items-center justify-center rounded-md">
+        <img src="assets/qris.jpg" alt="Kode QRIS" class="w-full h-full object-contain rounded-md" onerror="this.onerror=null; this.src='https://placehold.co/256x256?text=QRIS';"/>
+        </div>
+        <div class="bg-red-100 text-red-700 font-bold p-3 rounded-lg">
+        <span>
+            Batas Waktu Pembayaran:
+        </span>
+        <span class="text-2xl font-mono ml-2" id="countdown-timer">
+            05:00
+        </span>
+        </div>
+        <div class="mt-4 w-full max-w-xs">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti Pembayaran (Wajib)</label>
+            <input id="payment-proof" type="file" accept="image/*" class="block w-full text-sm border border-gray-300 rounded-md p-2" required />
+        </div>
+        <button class="w-full max-w-xs mt-4 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 disabled:opacity-50" id="finish-payment-btn" disabled>
+        Saya Sudah Membayar
+        </button>
+        </div>
+        </div>
+    </div>
+    </main>
+    <footer class="bg-gray-800 text-white mt-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+        <p>
+        © 2025 IMMt SHOP. All rights reserved
+        </p>
+    </div>
+    </footer>
+
+    <!-- Success Modal Structure (for payment success) -->
+    <div class="custom-alert-overlay hidden" id="success-modal">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+        <div class="mx-auto">
+        <svg class="w-24 h-24 mx-auto" viewbox="0 0 100 100">
+        <circle class="success-animation-circle" cx="50" cy="50" fill="transparent" r="40" stroke="#10B981" stroke-width="8">
+        </circle>
+        <polyline class="success-animation-checkmark" fill="transparent" points="30,55 45,70 70,40" stroke="#10B981" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
+        </polyline>
+        </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mt-6">
+        Pesanan Diterima!
+        </h2>
+        <p class="text-gray-600 mt-2">
+        Pesanan kamu sudah kami terima, <strong>terima kasih telah melakukan pembayaran!</strong>
+        </p>
+    </div>
+    </div>
+
+    <!-- Custom Alert Modal Structure -->
+    <div class="custom-alert-overlay hidden" id="custom-alert-modal">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
+            <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
+            <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Firebase Configuration Keys
+        const firebaseConfig = {
+        apiKey: "AIzaSyCCRGTeq4NN25eV31HuzeGqU8s3dhXIv5w",
+        authDomain: "nyoba-doang-fd3e9.firebaseapp.com",
+        projectId: "nyoba-doang-fd3e9",
+        storageBucket: "nyoba-doang-fd3e9.firebasestorage.app",
+        messagingSenderId: "825164926042",
+        appId: "1:825164926042:web:5b9b7ef8fc04a2acebdc63",
+        measurementId: "G-MFMLDSBK26"
+        };
+
+        // Cloudinary Configuration Keys (REPLACE WITH YOUR OWN KEYS!)
+        const CLOUDINARY_CLOUD_NAME = 'dmqznikm'; // Contoh: 'my-shop-cloud'
+        const CLOUDINARY_UPLOAD_PRESET = 'bukti_pembayaran_upload'; // Contoh: 'unsigned_uploads'
+
+        // Initialize Firebase using global namespace
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const allProducts = [
+        {
+            id: 1,
+            name: "Jas laboratorium",
+            price: 140000, // Original price
+            strikethroughPrice: 160000, // New strikethrough price
+            description: "Jas Laboratorium berkualitas tinggi, dengan berbasis bahan american drill yang ketika dipakai akan terasa nyaman dan tidak panas. Wajib bagi setiap mahasiswa Metalurgi pada saat praktikum. Dilengkapi dengan bordir nama pada sisi kanan dan logo IMMt pada sisi kiri dada.",
+            image: "assets/jaslab-1.jpg",
+            hasSizes: true,
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"], // Added more sizes
+            detailImages: [
+            "assets/jaslab-1.jpg",
+            "assets/jaslab-2.jpg",
+            "assets/size-chart-a.jpg",
+            ],
+            inBundle: true,
+        },
+        {
+            id: 2,
+            name: "Workshirt Kerja Praktik",
+            price: 160000, // Original price
+            strikethroughPrice: 175000, // New strikethrough price
+            description: "Workshirt nyaman dan stylish untuk kegiatan kerja praktik Anda. Bahan kuat dan tahan lama yang siap dipakai kerja praktik anda.",
+            image: "assets/workshirt-kp-1.jpg",
+            hasSizes: true,
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"],
+            detailImages: [
+            "assets/workshirt-kp-1.jpg",
+            "assets/workshirt-kp-2.jpg",
+            "assets/size-chart-b.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        {
+            id: 3,
+            name: "Workshirt Metalurgi",
+            price: 179000,
+            description: "Tunjukkan kebanggaan Anda sebagai mahasiswa metalurgi dengan workshirt eksklusif ini.",
+            image: "assets/workshirt-metal-1.jpg",
+            hasSizes: true,
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
+            detailImages: [
+            "assets/workshirt-metal-1.jpg",
+            "assets/workshirt-metal-2.jpg",
+            "assets/size-chart-c.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        {
+            id: 4,
+            name: "Sticker (3pcs)",
+            price: 15000,
+            description: "Paket 3 stiker unik dengan desain IMMt. Cocok untuk laptop, buku, atau dimanapun.",
+            image: "assets/sticker-pack-1.jpg",
+            hasSizes: false,
+            detailImages: [
+            "assets/sticker-pack-1.jpg",
+            "assets/sticker-pack-2.jpg",
+            ],
+            inBundle: true, // In SIMAK bundle
+        },
+        {
+            id: 5,
+            name: "Sticker mobil",
+            price: 15000,
+            description: "Stiker khusus untuk mobil Anda, tunjukkan identitas bahwa anda adalah bagian dari Teknik Metalurgi!",
+            image: "assets/sticker-mobil-1.jpg",
+            hasSizes: false,
+            hasOptions: true, // New property for options
+            options: ["Stiker Fakultas Teknik", "Stiker Metalurgi"], // New options for sticker mobil
+            detailImages: [
+            "assets/sticker-mobil-1.jpg",
+            "assets/sticker-mobil-2.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        {
+            id: 6,
+            name: "Keychain IMMt",
+            price: 15000,
+            description: "Gantungan kunci eksklusif IMMt, tersedia dalam dua desain unik. Pilih favorit Anda!",
+            image: "assets/keychain-immt-1.jpg",
+            hasSizes: false,
+            hasOptions: true, // New property for options
+            options: ["Keychain Kain Bordir", "Keychain Akrilik"], // New options
+            detailImages: [
+            "assets/keychain-immt-1.jpg",
+            "assets/keychain-immt-2.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        {
+            id: 7,
+            name: "Keychain Makara FTUI",
+            price: 15000,
+            description: "Gantungan kunci Makara UI, simbol kebanggaan kami sebagai anak Teknik!",
+            image: "assets/keychain-makara-1.jpg",
+            hasSizes: false,
+            detailImages: [
+            "assets/keychain-makara-1.jpg",
+            "assets/keychain-makara-2.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        {
+            id: 8,
+            name: "Paket Alat Gamtek",
+            price: 250000,
+            description: "Paket lengkap alat gambar teknik untuk menunjang kebutuhan perkuliahan Anda ketika menghadapi mata kuliah gambar teknik!<br>Paket Gamtek Berisikan :<br>1. Tabung Gamtek 64 CM<br>2. Penggaris<br>3. Penggaris MOR<br>4. Penghapus<br>5. Mal Huruf 3 & 6 mm<br>6. Mal lingkaran<br>7. Pensil Mekanik 0.5 & 0.7<br> 8. Isi Pensil 0.5 & 0.7<br> 9. Jangka<br>10. Buku Gambar A3<br> 11. Buku MM Block",
+            image: "assets/gamtek-1.jpg",
+            hasSizes: false,
+            detailImages: [
+            "assets/gamtek-1.jpg",
+            "assets/gamtek-2.jpg",
+            "assets/gamtek-3.jpg",
+            "assets/gamtek-4.jpg",
+            "assets/gamtek-5.jpg",
+            "assets/gamtek-6.jpg",
+            "assets/gamtek-7.jpg",
+            "assets/gamtek-8.jpg",
+            "assets/gamtek-9.jpg",
+            "assets/gamtek-10.jpg",
+            "assets/gamtek-11.jpg",
+            "assets/gamtek-12.jpg",
+            ],
+            inBundle: false, // Not in SIMAK bundle
+        },
+        { // New Product: Topi
+            id: 9,
+            name: "Topi Metalurgi",
+            price: 35000, // Updated price
+            description: "Topi stylish dengan design yang sangat menarik, cocok untuk kegiatan sehari-hari menerjang panas dan hujan.",
+            image: "assets/topi-immt-1.jpg",
+            hasSizes: false,
+            detailImages: [
+            "assets/topi-immt-1.jpg",
+            "assets/topi-immt-2.jpg",
+            ],
+            inBundle: true, // In SIMAK bundle
+        },
+        ];
+
+        let cart = [];
+        let customerData = null;
+        let countdownInterval = null;
+        let paymentProofFile = null; // To store the uploaded file
+
+        const dom = {
+        openCartBtn: document.getElementById("open-cart-btn"),
+        cartCountBadge: document.getElementById("cart-count-badge"),
+        orderSummaryItems: document.getElementById("order-summary-items"),
+        orderSummaryTotal: document.getElementById("order-summary-total"),
+        customerDataSummary: document.getElementById("customer-data-summary"),
+        countdownTimer: document.getElementById("countdown-timer"),
+        paymentProofInput: document.getElementById("payment-proof"),
+        finishPaymentBtn: document.getElementById("finish-payment-btn"),
+        successModal: document.getElementById("success-modal"),
+        customAlertModal: document.getElementById("custom-alert-modal"),
+        customAlertMessage: document.getElementById("custom-alert-message"),
+        closeAlertBtn: document.getElementById("close-alert-btn"),
+        };
+
+        // Helper function to format currency
+        const formatCurrency = (n) =>
+        new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(n);
+
+        // Function to calculate price based on product and size, with size increments
+        const calculatePrice = (basePrice, size, productId = null) => {
+            let price = basePrice;
+            const sizeIncrements = {
+                "S": 0, "M": 0, "L": 0,
+                "XL": 1, "XXL": 2, "3XL": 3, "4XL": 4, "5XL": 5
+            };
+            
+            let incrementAmount = 0;
+
+            // Apply specific increment amounts based on productId
+            if (productId === 1) { // Jas laboratorium
+                incrementAmount = 10000;
+            } else if (productId === 2) { // Workshirt Kerja Praktik
+                incrementAmount = 5000;
+            }
+            // Add more product-specific increment amounts here if needed
+
+            const sizeIndex = sizeIncrements[size];
+
+            if (sizeIndex > 0) { // Only apply if size is XL or larger
+                price = basePrice + (sizeIndex * incrementAmount);
+            }
+            return price;
+        };
+
+        // Custom alert modal implementation
+        const showCustomAlert = (message) => {
+            dom.customAlertMessage.textContent = message;
+            dom.customAlertModal.classList.remove('hidden');
+        };
+
+        dom.closeAlertBtn.addEventListener('click', () => {
+            dom.customAlertModal.classList.add('hidden');
+        });
+
+
+        // Function to load cart from localStorage
+        const loadCart = () => {
+            const storedCart = localStorage.getItem('immtShopCart');
+            cart = storedCart ? JSON.parse(storedCart) : [];
+        };
+
+        // Function to save cart to localStorage
+        const saveCart = () => {
+            localStorage.setItem('immtShopCart', JSON.stringify(cart));
+        };
+
+        const updateCartCountBadge = () => {
+        let itemCount = 0;
+        cart.forEach(item => {
+            itemCount += item.quantity;
+        });
+        dom.cartCountBadge.textContent = itemCount;
+        };
+
+        const startCountdown = () => {
+        clearInterval(countdownInterval);
+        let duration = 300; // 5 minutes
+        countdownInterval = setInterval(() => {
+            const minutes = Math.floor(duration / 60)
+            .toString()
+            .padStart(2, "0");
+            const seconds = (duration % 60).toString().padStart(2, "0");
+            dom.countdownTimer.textContent = `${minutes}:${seconds}`;
+            if (--duration < 0) handlePaymentTimeout();
+        }, 1000);
+        };
+
+        const handlePaymentTimeout = () => {
+        clearInterval(countdownInterval);
+        showCustomAlert("Waktu pembayaran telah habis. Silakan ulangi pesanan Anda.");
+        // Clear cart and customer data
+        cart = [];
+        saveCart();
+        localStorage.removeItem('immtShopCustomerData');
+        setTimeout(() => {
+            window.location.href = 'index.html'; // Redirect to home page
+        }, 2000);
+        };
+
+        const populateConfirmationPage = () => {
+        dom.orderSummaryItems.innerHTML = "";
+        let orderItemsHtml = "";
+        let totalOrderAmount = 0;
+
+        cart.forEach(item => {
+            if (item.isBundle) {
+                orderItemsHtml += `
+                    <div class="mt-4 mb-2 text-md font-bold text-gray-800">${item.name} (${formatCurrency(item.finalPrice)})</div>
+                    <ul class="ml-4 list-disc list-inside text-sm text-gray-700">
+                `;
+                item.bundleDetails.forEach(detail => {
+                    const detailProduct = allProducts.find(p => p.id === detail.id);
+                    const detailDisplayPrice = detail.price;
+                    let detailStrikethroughPriceHtml = '';
+
+                    if (detailProduct && detailProduct.strikethroughPrice) {
+                        const calculatedStrikethroughPrice = calculatePrice(detailProduct.strikethroughPrice, detail.size, detail.id);
+                        detailStrikethroughPriceHtml = `<s class="text-red-500">${formatCurrency(calculatedStrikethroughPrice)}</s> `;
+                    }
+                    
+                    orderItemsHtml += `
+                        <li>${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} 
+                            (${detailStrikethroughPriceHtml}${formatCurrency(detailDisplayPrice * detail.quantity)})
+                        </li>
+                    `;
+                });
+                orderItemsHtml += `</ul>`;
+                totalOrderAmount += item.finalPrice * item.quantity;
+            } else {
+                orderItemsHtml += `
+                    <div class="flex justify-between text-sm">
+                        <span>${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity}</span>
+                        <span>${formatCurrency(item.finalPrice * item.quantity)}</span>
+                    </div>
+                `;
+                totalOrderAmount += item.finalPrice * item.quantity;
+            }
+        });
+        dom.orderSummaryItems.innerHTML = orderItemsHtml;
+        dom.orderSummaryTotal.textContent = formatCurrency(totalOrderAmount);
+
+        dom.customerDataSummary.innerHTML = "";
+        for (const key in customerData) {
+            dom.customerDataSummary.innerHTML += `<div><strong>${key}:</strong> ${customerData[key]}</div>`;
+        }
+        // Add shipping cost disclaimer if "Dikirim ke Alamat" was selected
+        if (customerData.Pengiriman === "Dikirim ke Alamat") {
+            dom.customerDataSummary.innerHTML += `
+                <div class="text-xs text-gray-500 mt-2">
+                    <p>Mohon diperhatikan bahwa harga di atas belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian. Terima kasih atas pengertian Anda.<br><br>Pengiriman dilakukan dari Kampus Universitas Indonesia </p>
+                </div>
+            `;
+        }
+        };
+
+        // Function to upload payment proof to Cloudinary
+        const uploadPaymentProof = async (file) => {
+            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+            if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET) {
+                console.warn("Cloudinary is disabled. Skipping file upload and returning a dummy URL.");
+                return Promise.resolve("https://example.com/dummy-payment-proof.jpg");
+            }
+
+            if (file.size > MAX_FILE_SIZE) {
+                throw new Error("Ukuran file terlalu besar. Maksimal 5MB.");
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const progress = (event.loaded / event.total) * 100;
+                        dom.finishPaymentBtn.textContent = `Mengunggah: ${progress.toFixed(0)}%`;
+                    }
+                });
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const data = JSON.parse(xhr.responseText);
+                        resolve(data.secure_url); // Secure URL of the uploaded image
+                    } else {
+                        const errorData = JSON.parse(xhr.responseText);
+                        console.error("Cloudinary Upload Error:", errorData);
+                        reject(new Error(`Gagal mengunggah ke Cloudinary: ${errorData.error.message || xhr.statusText}`));
+                    }
+                };
+
+                xhr.onerror = () => {
+                    reject(new Error('Kesalahan jaringan saat mengunggah ke Cloudinary.'));
+                };
+
+                xhr.send(formData);
+            });
+        };
+
+        // Fungsi pembantu untuk memformat detail pesanan untuk email
+        const generateEmailOrderDetails = (items) => {
+            let details = '';
+            items.forEach(item => {
+                if (item.isBundle) {
+                    details += `\n--- ${item.name} (${formatCurrency(item.finalPrice)}) ---\n`;
+                    item.bundleDetails.forEach(detail => {
+                        const detailPrice = typeof detail.price === 'number' ? detail.price : 0;
+                        details += `- ${detail.name} ${detail.size ? `(${detail.size})` : ''}${detail.option ? ` - ${detail.option}` : ''} x ${detail.quantity} (${formatCurrency(detailPrice * detail.quantity)})\n`;
+                    });
+                } else {
+                    const itemPriceForEmail = typeof item.price === 'number' ? item.price : 0;
+                    details += `- ${item.name} ${item.size ? `(${item.size})` : ''}${item.option ? ` - ${item.option}` : ''} x ${item.quantity} (${formatCurrency(itemPriceForEmail * item.quantity)})\n`;
+                }
+            });
+            return details;
+        };
+
+        // Fungsi untuk mengirim pesanan ke Firestore
+        const submitOrder = async () => {
+            if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '' && !paymentProofFile) {
+                showCustomAlert("Silakan unggah bukti pembayaran terlebih dahulu!");
+                return;
+            }
+
+            dom.finishPaymentBtn.disabled = true;
+            const originalButtonText = dom.finishPaymentBtn.textContent;
+            
+            try {
+                let paymentProofURL = "N/A";
+                if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '') {
+                    paymentProofURL = await uploadPaymentProof(paymentProofFile);
+                    if (!paymentProofURL) {
+                        throw new Error("Gagal mendapatkan URL bukti pembayaran. URL kosong.");
+                    }
+                } else {
+                    console.log("Cloudinary dinonaktifkan, melewati unggahan bukti pembayaran.");
+                }
+
+                const flattenedCart = [];
+                let totalAmountForFirestore = 0;
+                cart.forEach(item => {
+                    if (item.isBundle) {
+                        flattenedCart.push({
+                            name: item.name,
+                            quantity: item.quantity,
+                            finalPrice: item.finalPrice,
+                            isBundle: true,
+                            bundleDetails: item.bundleDetails
+                        });
+                        totalAmountForFirestore += item.finalPrice * item.quantity;
+                    } else {
+                        flattenedCart.push({
+                            name: item.name,
+                            size: item.size || "N/A",
+                            option: item.option || "N/A",
+                            quantity: item.quantity,
+                            price: item.finalPrice,
+                        });
+                        totalAmountForFirestore += item.finalPrice * item.quantity;
+                    }
+                });
+
+                const orderId = db.collection("orders").doc().id;
+
+                const orderData = {
+                    orderId: orderId,
+                    customer: customerData,
+                    items: flattenedCart,
+                    totalAmount: totalAmountForFirestore,
+                    paymentProofURL: paymentProofURL,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                };
+
+                await db.collection("orders").doc(orderId).set(orderData);
+
+                console.log("Data sent to Firestore successfully.");
+                clearInterval(countdownInterval);
+                dom.successModal.classList.remove('hidden'); // Show success modal
+
+                try {
+                    const emailParams = {
+                        to_email: customerData.Email,
+                        customer_name: customerData.Nama,
+                        order_id: orderId,
+                        order_details: generateEmailOrderDetails(orderData.items),
+                        total_amount: formatCurrency(orderData.totalAmount),
+                    };
+
+                    await emailjs.send('service_ltidkgp', 'template_pealc2t', emailParams);
+                    console.log('Email sent successfully via EmailJS!');
+                } catch (emailError) {
+                    console.error('Failed to send email via EmailJS:', emailError);
+                    showCustomAlert("Gagal mengirim email konfirmasi. Silakan hubungi admin.");
+                }
+
+                setTimeout(() => {
+                    dom.successModal.classList.add('hidden');
+                    cart = [];
+                    saveCart();
+                    localStorage.removeItem('immtShopCustomerData');
+                    dom.paymentProofInput.value = '';
+                    dom.finishPaymentBtn.disabled = false;
+                    window.location.href = 'index.html'; // Redirect to home page
+                }, 4000);
+            } catch (error) {
+                console.error("Error submitting order:", error);
+                let errorMessage = "Maaf, terjadi kesalahan saat mengirim pesanan.";
+                if (error.message.includes("Ukuran file terlalu besar")) {
+                    errorMessage = error.message;
+                } else if (error.message.includes("Cloudinary")) {
+                    errorMessage = `Kesalahan unggah gambar ke Cloudinary: ${error.message}`;
+                } else if (error.message.includes("Cloudinary configuration keys are not set")) {
+                    errorMessage = error.message;
+                } else if (error.code && error.code.includes('firestore')) {
+                    errorMessage = `Kesalahan penyimpanan data (Firestore): ${error.message}. Harap periksa aturan keamanan Firestore Anda.`;
+                } else {
+                    errorMessage = `Kesalahan umum: ${error.message}`;
+                }
+                showCustomAlert(`${errorMessage} Silakan coba lagi atau hubungi admin.`);
+            } finally {
+                dom.finishPaymentBtn.textContent = originalButtonText;
+            }
+        };
+
+        // Event Listeners
+        dom.openCartBtn.addEventListener("click", () => {
+        window.location.href = 'index.html#cart'; // Redirect to index.html and open cart modal
+        });
+
+        dom.paymentProofInput.addEventListener('change', (e) => {
+            paymentProofFile = e.target.files[0];
+            if (CLOUDINARY_CLOUD_NAME !== '' && CLOUDINARY_UPLOAD_PRESET !== '') {
+                dom.finishPaymentBtn.disabled = !paymentProofFile;
+            } else {
+                dom.finishPaymentBtn.disabled = false;
+            }
+        });
+
+        dom.finishPaymentBtn.addEventListener("click", submitOrder);
+
+        // Initial load
+        loadCart(); // Load cart on page load
+        updateCartCountBadge(); // Update cart badge
+
+        // Load customer data from localStorage
+        const storedCustomerData = localStorage.getItem('immtShopCustomerData');
+        if (storedCustomerData) {
+            customerData = JSON.parse(storedCustomerData);
+        } else {
+            showCustomAlert("Data pelanggan tidak ditemukan. Silakan isi data diri terlebih dahulu.");
+            setTimeout(() => {
+                window.location.href = 'customer_data.html'; // Redirect back to customer data page
+            }, 2000);
+            return; // Stop execution
+        }
+
+        // Check if cart is empty, if so, redirect back to index
+        if (cart.length === 0) {
+            showCustomAlert("Keranjang belanja Anda kosong. Silakan tambahkan produk terlebih dahulu.");
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            return; // Stop execution
+        }
+
+        populateConfirmationPage(); // Populate order summary and customer data
+        startCountdown(); // Start the payment countdown
+
+        // If Cloudinary is disabled, ensure the finish payment button is enabled by default
+        if (CLOUDINARY_CLOUD_NAME === '' || CLOUDINARY_UPLOAD_PRESET === '') {
+            dom.finishPaymentBtn.disabled = false;
+        }
+    });
+    </script>
+    </body>
+    </html>
