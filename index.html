@@ -145,10 +145,6 @@
         border-radius: 0.375rem; /* Tailwind 'rounded-lg' */
       }
 
-      .shopee-header .search-input::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-      }
-
       .shopee-header .search-icon {
         color: white;
       }
@@ -405,7 +401,7 @@
    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 sm:h-20">
      <a class="flex items-center gap-2" href="#">
-      <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=Logo';" src="assets/logo.jpg"/>
+      <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='assets/logo.jpg';" src="assets/logo.jpg"/>
       <span class="text-xl font-bold logo-text hidden sm:block">
        IMMt SHOP
       </span>
@@ -419,6 +415,11 @@
        </div>
       </div>
      </div>
+     <nav class="hidden md:flex items-center gap-6 text-white font-medium">
+        <a href="index.html" class="hover:text-gray-300 transition-colors">Beranda</a>
+        <a href="#products-grid" class="hover:text-gray-300 transition-colors">Produk</a>
+        <a href="#about-us" class="hover:text-gray-300 transition-colors">Tentang Kami</a>
+     </nav>
      <div class="flex items-center gap-2 sm:gap-4">
       <button class="relative flex items-center p-2 rounded-full cart-button" id="open-cart-btn">
        <i class="w-6 h-6 text-white" data-lucide="shopping-cart">
@@ -1094,6 +1095,17 @@
         // Clear the hash to prevent it from reopening on refresh
         history.replaceState(null, null, ' ');
     }
+
+    // New: Handle browser back/forward cache to ensure cart is always up-to-date
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            // Page was restored from BFCache, reload cart and update UI
+            loadCart();
+            updateUI();
+            // Ensure product overview modal is closed if it was open due to BFCache
+            toggleModal(dom.productOverviewModal, false);
+        }
+    });
    });
   </script>
  </body>
