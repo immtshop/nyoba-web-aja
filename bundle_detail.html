@@ -441,7 +441,7 @@
         ],
         promoImages: [ // Gambar-gambar yang akan ditampilkan di halaman detail bundle
             "assets/jaslab-1.jpg",
-            "assets/size-chart-a.jpg", // Added size chart directly here
+            "assets/size-chart-a.jpg",
             "assets/sticker-pack-1.jpg",
             "assets/topi-immt-1.jpg",
         ]
@@ -479,9 +479,9 @@
       bundleDescription: document.getElementById("bundle-description"),
       bundleImagesContainer: document.getElementById("bundle-images-container"),
       bundleOptionsContainer: document.getElementById("bundle-options-container"),
-      bundleJaslabSizeOptions: document.getElementById("bundle-jaslab-size-options"), // Ubah ID
-      bundleJaslabPrice: document.getElementById("bundle-jaslab-price"), // Ubah ID
-      bundleJaslabStrikethroughPrice: document.getElementById("bundle-jaslab-strikethrough-price"), // Ubah ID
+      // bundleJaslabSizeOptions: document.getElementById("bundle-jaslab-size-options"), // Ubah ID
+      // bundleJaslabPrice: document.getElementById("bundle-jaslab-price"), // Ubah ID
+      // bundleJaslabStrikethroughPrice: document.getElementById("bundle-jaslab-strikethrough-price"), // Ubah ID
       bundleNormalPrice: document.getElementById("bundle-normal-price"), // Ubah ID
       bundleDiscountedPrice: document.getElementById("bundle-discounted-price"), // Ubah ID
       bundleSavingsMessage: document.getElementById("bundle-savings-message"), // Ubah ID
@@ -493,12 +493,7 @@
       cartTotalEl: document.getElementById("cart-total"),
       checkoutBtn: document.getElementById("checkout-btn"),
       continueShoppingBtn: document.getElementById("continue-shopping-btn"),
-      closeModalBtns: document.querySelectorAll(".close-modal-btn"),
-
-      // Custom Alert Modal
-      customAlertModal: document.getElementById("custom-alert-modal"),
-      customAlertMessage: document.getElementById("custom-alert-message"),
-      closeAlertBtn: document.getElementById("close-alert-btn"),
+      // closeModalBtns: document.querySelectorAll(".close-modal-btn"), // This will be handled by event delegation
     };
 
     const formatCurrency = (n) =>
@@ -529,13 +524,21 @@
     };
 
     const showCustomAlert = (message) => {
-        dom.customAlertMessage.textContent = message;
-        dom.customAlertModal.classList.remove('hidden');
+        // Re-get custom alert elements here, as they are part of document.body
+        const customAlertModal = document.getElementById("custom-alert-modal");
+        const customAlertMessage = document.getElementById("custom-alert-message");
+        const closeAlertBtn = document.getElementById("close-alert-btn");
+
+        customAlertMessage.textContent = message;
+        customAlertModal.classList.remove('hidden');
+
+        // Add event listener for close button on the alert modal
+        closeAlertBtn.onclick = () => {
+            customAlertModal.classList.add('hidden');
+        };
     };
 
-    dom.closeAlertBtn.addEventListener('click', () => {
-        dom.customAlertModal.classList.add('hidden');
-    });
+    // Moved dom.closeAlertBtn.addEventListener to inside showCustomAlert for dynamic elements.
 
     const toggleModal = (modal, show) => {
       modal.classList.toggle("visible", show);
@@ -543,7 +546,7 @@
           document.body.style.overflow = 'hidden';
           lucide.createIcons();
       } else {
-          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay')).some(m => m.classList.contains('visible'));
+          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay.visible')).some(m => m !== modal); // Check if any other modal is visible
           if (!anyOtherModalVisible) {
               document.body.style.overflow = '';
           }
@@ -658,6 +661,14 @@
     const updateBundlePrices = () => {
         if (!currentBundle) return;
 
+        // Re-get dynamic DOM elements here
+        // These elements are inside bundleOptionsContainer, which is cleared and re-added.
+        // So we need to get their references AFTER bundleOptionsContainer.innerHTML is set.
+        const bundleJaslabPriceEl = document.getElementById("bundle-jaslab-price");
+        const bundleJaslabStrikethroughPriceEl = document.getElementById("bundle-jaslab-strikethrough-price");
+        // const bundleJaslabSizeOptionsContainer = document.getElementById("bundle-jaslab-size-options"); // Not needed directly here
+
+
         let totalNormalPrice = 0;
         let totalCurrentPrice = 0;
         let allRequiredOptionsSelected = true;
@@ -717,12 +728,14 @@
             if (selectedJaslabSize) {
                 const jaslabCurrentPrice = calculatePrice(jaslabProduct.price, selectedJaslabSize, jaslabProduct.id);
                 const jaslabStrikethroughPrice = calculatePrice(jaslabProduct.strikethroughPrice || jaslabProduct.price, selectedJaslabSize, jaslabProduct.id);
-                dom.bundleJaslabPrice.textContent = formatCurrency(jaslabCurrentPrice);
-                dom.bundleJaslabStrikethroughPrice.textContent = formatCurrency(jaslabStrikethroughPrice);
-                dom.bundleJaslabStrikethroughPrice.style.display = 'inline';
+                if (bundleJaslabPriceEl) bundleJaslabPriceEl.textContent = formatCurrency(jaslabCurrentPrice);
+                if (bundleJaslabStrikethroughPriceEl) {
+                    bundleJaslabStrikethroughPriceEl.textContent = formatCurrency(jaslabStrikethroughPrice);
+                    bundleJaslabStrikethroughPriceEl.style.display = 'inline';
+                }
             } else {
-                dom.bundleJaslabPrice.textContent = 'Pilih Ukuran';
-                dom.bundleJaslabStrikethroughPrice.style.display = 'none';
+                if (bundleJaslabPriceEl) bundleJaslabPriceEl.textContent = 'Rp 0';
+                if (bundleJaslabStrikethroughPriceEl) bundleJaslabStrikethroughPriceEl.style.display = 'none';
             }
         }
         lucide.createIcons(); // Recreate icons if any dynamic content changes them
@@ -760,7 +773,6 @@
             if (!product) return;
 
             if (item.requiresSize && product.hasSizes) {
-                // Assuming only one item in bundle requires size for simplicity, or handle multiple
                 // For now, hardcode for Jaslab (product ID 1)
                 if (product.id === 1) {
                     dom.bundleOptionsContainer.innerHTML += `
@@ -786,15 +798,21 @@
         lucide.createIcons();
     };
 
-    // Event Listeners
+    // Event Listeners (using event delegation on document)
     document.addEventListener("click", (e) => {
+        // Handle size selection for bundle items
         if (e.target.matches('#bundle-jaslab-size-options .size-btn')) {
-            document.querySelectorAll('#bundle-jaslab-size-options .size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            const sizeOptionsContainer = document.getElementById('bundle-jaslab-size-options');
+            if (sizeOptionsContainer) {
+                sizeOptionsContainer.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            }
             e.target.classList.add("bg-green-600", "text-white");
             const sizeProperty = e.target.dataset.sizeProperty;
             selectedBundleOptions[sizeProperty] = e.target.dataset.size;
             updateBundlePrices();
-        } else if (e.target.matches("#add-bundle-to-cart-btn")) {
+        } 
+        // Handle "Add Bundle to Cart" button
+        else if (e.target.matches("#add-bundle-to-cart-btn")) {
             if (!currentBundle) return;
 
             let allRequiredOptionsSelected = true;
@@ -854,26 +872,36 @@
             
             showCustomAlert(`${currentBundle.name} telah ditambahkan ke keranjang!`);
             toggleModal(dom.cartModal, true); // Show cart with all items
-        } else if (e.target.matches(".remove-from-cart-btn")) {
+        } 
+        // Handle remove from cart button
+        else if (e.target.matches(".remove-from-cart-btn")) {
             const cartItemId = e.target.dataset.cartItemId;
             cart = cart.filter(item => item.cartItemId !== cartItemId);
             saveCart();
             updateCartCountBadge();
             renderCart();
-        } else if (e.target.matches(".update-cart-quantity-btn")) {
+        } 
+        // Handle update cart quantity buttons
+        else if (e.target.matches(".update-cart-quantity-btn")) {
             const cartItemId = e.target.dataset.cartItemId;
             const change = parseInt(e.target.dataset.change);
             updateCartQuantity(cartItemId, change);
-        } else if (e.target.matches("#checkout-btn")) {
+        } 
+        // Handle checkout button
+        else if (e.target.matches("#checkout-btn")) {
             if (cart.length > 0) {
                 toggleModal(dom.cartModal, false);
                 window.location.href = 'customer_data.html';
             } else {
                 showCustomAlert("Keranjang belanja Anda kosong. Silakan tambahkan produk terlebih dahulu.");
             }
-        } else if (e.target.matches("#continue-shopping-btn")) {
+        } 
+        // Handle continue shopping button
+        else if (e.target.matches("#continue-shopping-btn")) {
             toggleModal(dom.cartModal, false);
-        } else if (e.target.matches(".close-modal-btn")) {
+        } 
+        // Handle close modal buttons
+        else if (e.target.matches(".close-modal-btn")) {
             const modalId = e.target.dataset.modalId;
             if (modalId) {
                 toggleModal(document.getElementById(modalId), false);
