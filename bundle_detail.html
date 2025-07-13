@@ -479,9 +479,6 @@
       bundleDescription: document.getElementById("bundle-description"),
       bundleImagesContainer: document.getElementById("bundle-images-container"),
       bundleOptionsContainer: document.getElementById("bundle-options-container"),
-      // bundleJaslabSizeOptions: document.getElementById("bundle-jaslab-size-options"), // Ubah ID
-      // bundleJaslabPrice: document.getElementById("bundle-jaslab-price"), // Ubah ID
-      // bundleJaslabStrikethroughPrice: document.getElementById("bundle-jaslab-strikethrough-price"), // Ubah ID
       bundleNormalPrice: document.getElementById("bundle-normal-price"), // Ubah ID
       bundleDiscountedPrice: document.getElementById("bundle-discounted-price"), // Ubah ID
       bundleSavingsMessage: document.getElementById("bundle-savings-message"), // Ubah ID
@@ -493,7 +490,11 @@
       cartTotalEl: document.getElementById("cart-total"),
       checkoutBtn: document.getElementById("checkout-btn"),
       continueShoppingBtn: document.getElementById("continue-shopping-btn"),
-      // closeModalBtns: document.querySelectorAll(".close-modal-btn"), // This will be handled by event delegation
+
+      // Custom Alert Modal
+      customAlertModal: document.getElementById("custom-alert-modal"),
+      customAlertMessage: document.getElementById("custom-alert-message"),
+      closeAlertBtn: document.getElementById("close-alert-btn"),
     };
 
     const formatCurrency = (n) =>
@@ -524,7 +525,6 @@
     };
 
     const showCustomAlert = (message) => {
-        // Re-get custom alert elements here, as they are part of document.body
         const customAlertModal = document.getElementById("custom-alert-modal");
         const customAlertMessage = document.getElementById("custom-alert-message");
         const closeAlertBtn = document.getElementById("close-alert-btn");
@@ -532,13 +532,10 @@
         customAlertMessage.textContent = message;
         customAlertModal.classList.remove('hidden');
 
-        // Add event listener for close button on the alert modal
         closeAlertBtn.onclick = () => {
             customAlertModal.classList.add('hidden');
         };
     };
-
-    // Moved dom.closeAlertBtn.addEventListener to inside showCustomAlert for dynamic elements.
 
     const toggleModal = (modal, show) => {
       modal.classList.toggle("visible", show);
@@ -546,7 +543,7 @@
           document.body.style.overflow = 'hidden';
           lucide.createIcons();
       } else {
-          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay.visible')).some(m => m !== modal); // Check if any other modal is visible
+          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay.visible')).some(m => m !== modal);
           if (!anyOtherModalVisible) {
               document.body.style.overflow = '';
           }
@@ -666,7 +663,6 @@
         // So we need to get their references AFTER bundleOptionsContainer.innerHTML is set.
         const bundleJaslabPriceEl = document.getElementById("bundle-jaslab-price");
         const bundleJaslabStrikethroughPriceEl = document.getElementById("bundle-jaslab-strikethrough-price");
-        // const bundleJaslabSizeOptionsContainer = document.getElementById("bundle-jaslab-size-options"); // Not needed directly here
 
 
         let totalNormalPrice = 0;
