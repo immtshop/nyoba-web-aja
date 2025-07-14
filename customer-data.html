@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>IMMt SHOP - Data Diri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Styles for the header */
+        .shopee-header {
+            background-color: #000000; /* Green accent */
+            color: white;
+            padding: 0.75rem 1rem; /* Adjust padding */
+        }
+        .shopee-header .logo-text {
+            color: white; /* Ensure text is white for contrast */
+        }
+        .shopee-header .search-bar {
+            flex-grow: 1;
+            margin: 0 1rem;
+        }
+        .shopee-header .search-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding-left: 2.5rem; /* For icon */
+            padding-right: 0.75rem;
+            border-radius: 0.375rem; /* Tailwind 'rounded-lg' */
+        }
+        .shopee-header .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .shopee-header .search-icon {
+            color: white;
+        }
+        .shopee-header .cart-button {
+            background-color: transparent; /* No specific background for cart button */
+        }
+        .shopee-header .cart-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Modal specific styles (kept for consistency, though this is a page) */
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1; /* Always visible for a page */
+            pointer-events: auto; /* Always interactive for a page */
+            overflow-y: auto;
+            position: static; /* Changed from fixed for a page layout */
+            display: block; /* Changed from flex for a page layout */
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            transform: translateY(0); /* Always at original position for a page */
+            opacity: 1; /* Always visible for a page */
+            overflow-y: auto;
+            margin: 2rem auto; /* Center content with margin */
+            max-width: 500px; /* Limit width for form */
+        }
+        .bg-indigo-600 { background-color: #059669 !important; }
+        .hover\:bg-indigo-700:hover { background-color: #047857 !important; }
+        .focus\:ring-indigo-500:focus { box-shadow: 0 0 0 2px #047857 !important; }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+    <!-- Header Section (copied from index.html) -->
+    <header class="shopee-header sticky top-0 z-40">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <a class="flex items-center gap-2" href="index.html">
+                    <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=Logo';" src="assets/logo.jpg"/>
+                    <span class="text-xl font-bold logo-text hidden sm:block">
+                        IMMt SHOP
+                    </span>
+                </a>
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-6 ml-auto">
+                    <a href="index.html#hero-section" class="text-white hover:text-gray-300 font-medium">Beranda</a>
+                    <a href="index.html#products-grid-section" class="text-white hover:text-gray-300 font-medium">Produk</a>
+                    <a href="index.html#about-us" class="text-white hover:text-gray-300 font-medium">Tentang Kami</a>
+                </nav>
+                <!-- Search bar and cart button removed as they are not relevant on this page -->
+            </div>
+        </div>
+    </header>
+
+    <div class="modal-overlay" id="customer-data-page-modal">
+        <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh]">
+            <div class="flex items-center justify-between p-5 border-b">
+                <h2 class="text-2xl font-bold">Data Diri &amp; Pengiriman</h2>
+            </div>
+            <form class="p-5 space-y-6 overflow-y-auto" id="customer-form">
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Nama Lengkap*</span>
+                    <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama" required="" type="text"/>
+                </label>
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">Email*</span>
+                    <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Email" required="" type="email"/>
+                </label>
+                <label class="block" id="bordir-name-container" style="display: none;">
+                    <span class="text-sm font-medium text-gray-700">Nama untuk Bordir (Maks. 15 huruf, 2 kata)*</span>
+                    <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Nama untuk Bordir" type="text" maxlength="15" />
+                </label>
+                <label class="block">
+                    <span class="text-sm font-medium text-gray-700">ID Line / No. Whatsapp*</span>
+                    <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kontak" required="" type="text"/>
+                </label>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Angkatan*</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2022"/>
+                            <label class="ml-3 text-sm text-gray-700">2022</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2023"/>
+                            <label class="ml-3 text-sm text-gray-700">2023</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2024"/>
+                            <label class="ml-3 text-sm text-gray-700">2024</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="2025"/>
+                            <label class="ml-3 text-sm text-gray-700">2025</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Angkatan" type="radio" value="Non Civitas"/>
+                            <label class="ml-3 text-sm text-gray-700">Non Civitas</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Opsi Pengambilan Barang*</label>
+                    <div class="mt-2 space-y-2">
+                        <div class="flex items-center">
+                            <input checked="" class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Ambil di lingkungan FTUI" id="pickup-option"/>
+                            <label class="ml-3 text-sm text-gray-700">Ambil di lingkungan FTUI</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500" name="Pengiriman" type="radio" value="Dikirim ke Alamat" id="delivery-option"/>
+                            <label class="ml-3 text-sm text-gray-700">Kirim ke Alamat</label>
+                        </div>
+                    </div>
+                    <div id="address-input-container" class="mt-4" style="display: none;">
+                        <label class="block">
+                            <span class="text-sm font-medium text-gray-700">Alamat Pengiriman Lengkap*</span>
+                            <textarea class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Alamat Pengiriman" rows="3"></textarea>
+                        </label>
+                        <label class="block mt-4">
+                            <span class="text-sm font-medium text-gray-700">Provinsi*</span>
+                            <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Provinsi" type="text"/>
+                        </label>
+                        <label class="block mt-4">
+                            <span class="text-sm font-medium text-gray-700">Kota/Kabupaten*</span>
+                            <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kota/Kabupaten" type="text"/>
+                        </label>
+                        <label class="block mt-4">
+                            <span class="text-sm font-medium text-gray-700">Kode Pos*</span>
+                            <input class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" name="Kode Pos" type="text"/>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-4">
+                            Mohon diperhatikan bahwa harga yang tertera belum termasuk ongkos kirim. Biaya pengiriman akan menjadi tanggung jawab pembeli dan akan diinformasikan kemudian.
+                        </p>
+                    </div>
+                </div>
+                <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" type="submit">
+                    Lanjutkan ke Pembayaran
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const customerForm = document.getElementById("customer-form");
+            const deliveryOption = document.getElementById("delivery-option");
+            const pickupOption = document.getElementById("pickup-option");
+            const addressInputContainer = document.getElementById("address-input-container");
+            const bordirNameContainer = document.getElementById("bordir-name-container");
+            const bordirNameInput = document.querySelector('#bordir-name-container input[name="Nama untuk Bordir"]');
+
+            // Handle shipping address input visibility
+            deliveryOption.addEventListener('change', () => {
+                addressInputContainer.style.display = deliveryOption.checked ? 'block' : 'none';
+                addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
+                    if (deliveryOption.checked) {
+                        input.setAttribute('required', '');
+                    } else {
+                        input.removeAttribute('required');
+                        input.value = '';
+                    }
+                });
+            });
+
+            pickupOption.addEventListener('change', () => {
+                addressInputContainer.style.display = 'none';
+                addressInputContainer.querySelectorAll('input, textarea').forEach(input => {
+                    input.removeAttribute('required');
+                    input.value = '';
+                });
+            });
+
+            // Retrieve cart data and check for embroidery items from sessionStorage
+            const cart = JSON.parse(sessionStorage.getItem('cart')) || [];
+
+            const hasBordirItemsInCart = () => {
+                const bordirProductIds = [1, 2, 3]; // Product IDs that require embroidery
+                for (const item of cart) {
+                    if (item.isBundle) {
+                        // Check if any item in the bundle details requires embroidery
+                        if (item.bundleDetails.some(detail => bordirProductIds.includes(detail.id))) {
+                            return true;
+                        }
+                    } else {
+                        if (bordirProductIds.includes(item.id)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            };
+
+            if (hasBordirItemsInCart()) {
+                bordirNameContainer.style.display = 'block';
+                bordirNameInput.setAttribute('required', '');
+            } else {
+                bordirNameContainer.style.display = 'none';
+                bordirNameInput.value = '';
+                bordirNameInput.removeAttribute('required');
+            }
+
+            // Validate bordir name input for max 2 words and max 15 characters
+            bordirNameInput.addEventListener('input', () => {
+                const value = bordirNameInput.value;
+                const words = value.trim().split(/\s+/);
+                if (words.length > 2) {
+                    // If more than 2 words, truncate to first 2 words
+                    bordirNameInput.value = words.slice(0, 2).join(' ');
+                }
+                // Max length is already handled by maxlength attribute
+            });
+
+
+            customerForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                // Re-validate bordir name before submission
+                if (hasBordirItemsInCart()) {
+                    const bordirName = bordirNameInput.value.trim();
+                    const words = bordirName.split(/\s+/);
+                    if (bordirName === '' || words.length > 2 || bordirName.length > 15) {
+                        // Using a custom alert instead of native alert()
+                        const alertModal = document.createElement('div');
+                        alertModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4';
+                        alertModal.innerHTML = `
+                            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">Peringatan</h3>
+                                <p class="text-gray-600 mb-6">Nama untuk bordir harus diisi, maksimal 15 huruf dan 2 kata.</p>
+                                <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
+                            </div>
+                        `;
+                        document.body.appendChild(alertModal);
+
+                        alertModal.querySelector('#close-alert-btn').addEventListener('click', () => {
+                            document.body.removeChild(alertModal);
+                        });
+                        return; // Prevent form submission
+                    }
+                }
+
+                const formData = new FormData(e.target);
+                const customerData = {};
+                formData.forEach((value, key) => {
+                    customerData[key] = value;
+                });
+
+                // Store customer data and cart in sessionStorage for the next page
+                sessionStorage.setItem('customerData', JSON.stringify(customerData));
+                sessionStorage.setItem('cart', JSON.stringify(cart)); // Ensure cart is also passed
+
+                // Redirect to the payment page
+                window.location.href = 'payment.html';
+            });
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

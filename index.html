@@ -15,7 +15,7 @@
   </script>
   <script src="https://unpkg.com/lucide@latest">
   </script>
-  <!-- Firebase SDKs (hanya Firestore yang masih digunakan untuk data pesanan) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js">
   </script>
   <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js">
@@ -38,13 +38,6 @@
         transition: opacity 0.3s ease-in-out;
         opacity: 0;
         pointer-events: none;
-        position: fixed; /* Added for modal overlay */
-        inset: 0; /* Added for modal overlay */
-        background-color: rgba(0, 0, 0, 0.5); /* Added for modal overlay */
-        display: flex; /* Added for modal overlay */
-        align-items: center; /* Added for modal overlay */
-        justify-content: center; /* Added for modal overlay */
-        z-index: 50; /* Ensure modal is on top */
         overflow-y: auto; /* Allow scrolling within the modal if content overflows */
       }
       .modal-overlay.visible {
@@ -55,14 +48,7 @@
         transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         transform: translateY(20px);
         opacity: 0;
-        background-color: white; /* Added for modal content */
-        border-radius: 0.75rem; /* Tailwind 'rounded-xl' */
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); /* Tailwind 'shadow-2xl' */
-        width: 100%; /* Default width */
-        max-width: 32rem; /* Tailwind 'max-w-lg' */
-        max-height: 90vh; /* Limit height */
         overflow-y: auto; /* Added for scroll fix */
-        position: relative; /* For close button positioning */
       }
       .modal-overlay.visible .modal-content {
         transform: translateY(0);
@@ -78,6 +64,7 @@
         background-size: cover; /* Kembali ke ukuran cover */
         background-position: center; /* Kembali ke posisi tengah */
       }
+
       .hero-section::before {
         content: "";
         position: absolute;
@@ -143,6 +130,10 @@
         padding-left: 2.5rem; /* For icon */
         padding-right: 0.75rem;
         border-radius: 0.375rem; /* Tailwind 'rounded-lg' */
+      }
+
+      .shopee-header .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
       }
 
       .shopee-header .search-icon {
@@ -276,11 +267,11 @@
         }
       }
 
-      /* New styles for Early Bundle page images (no longer a modal but general style) */
-      .bundle-page-images .grid.grid-cols-2 img {
+      /* New styles for Bundle modal images */
+      .bundle-modal-grid-images img {
           width: 100%; /* Ensure images take full width of their grid column */
           height: 150px; /* Set a fixed height for consistency */
-          object-fit: contain; /* Ensure the whole image is visible without cropping */
+          object-fit: contain; /* Changed to contain to prevent cropping */
           background-color: #f8fafc; /* Add a background color to the image area */
       }
 
@@ -297,6 +288,10 @@
               overflow-y: auto; /* Allow vertical scrolling for the entire content of the modal */
               overflow-x: hidden; /* Ensure modal content doesn't scroll horizontally */
               max-height: 90vh; /* Limit height to prevent modal from taking full screen */
+          }
+          /* Ensure images in bundle modals are still object-cover on mobile */
+          .bundle-modal-grid-images img {
+            object-fit: cover;
           }
       }
 
@@ -355,18 +350,20 @@
           transform-origin: 0 0; /* Important for consistent zoom behavior */
       }
 
-      /* Custom alert modal */
-      .custom-alert-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.7);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 100;
+      /* Reverted desktop-specific scroll separation for bundle modals */
+      @media (min-width: 768px) { /* md breakpoint and up */
+          .bundle-modal-content {
+              max-height: unset; /* Remove height limit */
+              overflow: auto; /* Allow scrolling for the entire modal content */
+          }
+          .bundle-modal-content > div:first-child { /* Image section */
+              overflow-y: visible; /* Revert to default overflow */
+              max-height: unset; /* Revert to default height */
+          }
+          .bundle-modal-content > div:last-child { /* Description/options section */
+              overflow-y: visible; /* Revert to default overflow */
+              max-height: unset; /* Revert to default height */
+          }
       }
   </style>
  </head>
@@ -381,31 +378,241 @@
      Penawaran Spesial IMMt SHOP!
     </h2>
     <div class="product-overview-grid">
-     <div class="product-overview-item" id="promo-simak-card" data-promo-id="simak-bundle">
-      <img alt="Promo SIMAK EDITION!!" class="w-full h-40 object-cover" src="assets/promo-simak-1.jpg"/>
-      <h3 class="product-overview-title">
-       SIMAK EDITION!!
-      </h3>
-      <p class="product-overview-description">
-       Dapatkan diskon khusus untuk SIMAK EDITION!!
-      </p>
-      <p class="product-overview-price">
-      </p>
-     </div>
+     <!-- New bundles will be rendered here dynamically based on allProducts -->
     </div>
    </div>
+  </div>
+
+  <!-- New Bundle Promo Modal - The Final Suit -->
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-final-suit-modal">
+    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full flex flex-col md:flex-row bundle-modal-content">
+        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
+            <div class="grid grid-cols-2 gap-4 bundle-modal-grid-images">
+                <img src="assets/jaslab-1.jpg" alt="Jaslab" class="rounded-lg shadow-md">
+                <img src="assets/workshirt-kp-1.jpg" alt="Workshirt Kerja Praktik" class="rounded-lg shadow-md">
+                <img src="assets/workshirt-metal-1.jpg" alt="Workshirt Metalurgi" class="rounded-lg shadow-md">
+                <img src="assets/sticker-pack-1.jpg" alt="Sticker (3pcs)" class="rounded-lg shadow-md">
+                <img src="assets/sticker-mobil-1.jpg" alt="Sticker Mobil" class="rounded-lg shadow-md">
+                <img src="assets/keychain-immt-1.jpg" alt="Keychain IMMt" class="rounded-lg shadow-md">
+                <img src="assets/keychain-makara-1.jpg" alt="Keychain Makara FTUI" class="rounded-lg shadow-md">
+                <img src="assets/gamtek-1.jpg" alt="Paket Alat Gamtek" class="rounded-lg shadow-md">
+                <img src="assets/topi-immt-1.jpg" alt="Topi Metalurgi" class="rounded-lg shadow-md">
+            </div>
+        </div>
+        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">The Final Suit ♠♥♣♦</h2>
+                <p class="text-gray-600 mb-6">
+                    Paket lengkap untuk mahasiswa Metalurgi! Dapatkan semua merchandise dan perlengkapan akademis dalam satu bundle.
+                </p>
+                <!-- Jaslab Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Jaslab:</p>
+                    <div id="bundle-final-suit-jaslab-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Jaslab akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Workshirt KP Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Workshirt Kerja Praktik:</p>
+                    <div id="bundle-final-suit-wskp-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Workshirt KP akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Workshirt Metalurgi Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Workshirt Metalurgi:</p>
+                    <div id="bundle-final-suit-wsmetal-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Workshirt Metalurgi akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Keychain IMMt Option Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Jenis Keychain IMMt:</p>
+                    <div id="bundle-final-suit-keychain-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Opsi Keychain IMMt akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Sticker Mobil Option Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Jenis Sticker Mobil:</p>
+                    <div id="bundle-final-suit-sticker-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Opsi Sticker Mobil akan dirender di sini -->
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-4 border-t">
+                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-final-suit-normal-price" class="text-red-500">Rp 0</s></p>
+                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-final-suit-discounted-price">Rp 0</span></p>
+                <p class="text-sm text-green-700 mt-1" id="bundle-final-suit-savings-message">Pilih ukuran dan opsi untuk melihat penghematan!</p>
+                <button id="add-bundle-final-suit-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
+                    Tambahkan Bundle ke Keranjang
+                </button>
+            </div>
+        </div>
+        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-final-suit-modal">
+            <i class="w-6 h-6" data-lucide="x"></i>
+        </button>
+    </div>
+  </div>
+
+  <!-- New Bundle Promo Modal - Face Card Edition -->
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-face-card-modal">
+    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full flex flex-col md:flex-row bundle-modal-content">
+        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
+            <div class="grid grid-cols-2 gap-4 bundle-modal-grid-images">
+                <img src="assets/workshirt-metal-1.jpg" alt="Workshirt Metalurgi" class="rounded-lg shadow-md">
+                <img src="assets/sticker-pack-1.jpg" alt="Sticker (3pcs)" class="rounded-lg shadow-md">
+                <img src="assets/sticker-mobil-1.jpg" alt="Sticker Mobil" class="rounded-lg shadow-md">
+                <img src="assets/keychain-immt-1.jpg" alt="Keychain IMMt" class="rounded-lg shadow-md">
+                <img src="assets/keychain-makara-1.jpg" alt="Keychain Makara FTUI" class="rounded-lg shadow-md">
+                <img src="assets/topi-immt-1.jpg" alt="Topi Metalurgi" class="rounded-lg shadow-md">
+            </div>
+        </div>
+        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Face Card Edition 🃏</h2>
+                <p class="text-gray-600 mb-6">
+                    Tunjukkan identitas Anda dengan bundle merchandise eksklusif ini!
+                </p>
+                <!-- Workshirt Metalurgi Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Workshirt Metalurgi:</p>
+                    <div id="bundle-face-card-wsmetal-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Workshirt Metalurgi akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Keychain IMMt Option Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Jenis Keychain IMMt:</p>
+                    <div id="bundle-face-card-keychain-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Opsi Keychain IMMt akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Sticker Mobil Option Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Jenis Sticker Mobil:</p>
+                    <div id="bundle-face-card-sticker-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Opsi Sticker Mobil akan dirender di sini -->
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-4 border-t">
+                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-face-card-normal-price" class="text-red-500">Rp 0</s></p>
+                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-face-card-discounted-price">Rp 0</span></p>
+                <p class="text-sm text-green-700 mt-1" id="bundle-face-card-savings-message">Pilih ukuran dan opsi untuk melihat penghematan!</p>
+                <button id="add-bundle-face-card-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
+                    Tambahkan Bundle ke Keranjang
+                </button>
+            </div>
+        </div>
+        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-face-card-modal">
+            <i class="w-6 h-6" data-lucide="x"></i>
+        </button>
+    </div>
+  </div>
+
+  <!-- New Bundle Promo Modal - Borderland Basic Kit -->
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-borderland-modal">
+    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full flex flex-col md:flex-row bundle-modal-content">
+        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
+            <div class="grid grid-cols-2 gap-4 bundle-modal-grid-images">
+                <img src="assets/jaslab-1.jpg" alt="Jaslab" class="rounded-lg shadow-md">
+                <img src="assets/workshirt-kp-1.jpg" alt="Workshirt Kerja Praktik" class="rounded-lg shadow-md">
+                <img src="assets/gamtek-1.jpg" alt="Paket Alat Gamtek" class="rounded-lg shadow-md">
+            </div>
+        </div>
+        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Borderland Basic Kit Bundle</h2>
+                <p class="text-gray-600 mb-6">
+                    Persiapkan diri Anda untuk dunia akademis dengan perlengkapan dasar yang wajib dimiliki!
+                </p>
+                <!-- Jaslab Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Jaslab:</p>
+                    <div id="bundle-borderland-jaslab-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Jaslab akan dirender di sini -->
+                    </div>
+                </div>
+                <!-- Workshirt KP Size Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Ukuran Workshirt Kerja Praktik:</p>
+                    <div id="bundle-borderland-wskp-size-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Ukuran Workshirt KP akan dirender di sini -->
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-4 border-t">
+                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-borderland-normal-price" class="text-red-500">Rp 0</s></p>
+                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-borderland-discounted-price">Rp 0</span></p>
+                <p class="text-sm text-green-700 mt-1" id="bundle-borderland-savings-message">Pilih ukuran untuk melihat penghematan!</p>
+                <button id="add-bundle-borderland-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
+                    Tambahkan Bundle ke Keranjang
+                </button>
+            </div>
+        </div>
+        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-borderland-modal">
+            <i class="w-6 h-6" data-lucide="x"></i>
+        </button>
+    </div>
+  </div>
+
+  <!-- New Bundle Promo Modal - Ground Entry Bundle -->
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="bundle-merch-essentials-modal">
+    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full flex flex-col md:flex-row bundle-modal-content">
+        <div class="w-full md:w-1/2 p-4 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Apa yang Anda Dapatkan:</h3>
+            <div class="grid grid-cols-2 gap-4 bundle-modal-grid-images">
+                <img src="assets/keychain-immt-1.jpg" alt="Keychain IMMt" class="rounded-lg shadow-md">
+                <img src="assets/keychain-makara-1.jpg" alt="Keychain Makara FTUI" class="rounded-lg shadow-md">
+                <img src="assets/topi-immt-1.jpg" alt="Topi Metalurgi" class="rounded-lg shadow-md">
+                <img src="assets/sticker-pack-1.jpg" alt="Sticker (3pcs)" class="rounded-lg shadow-md">
+            </div>
+        </div>
+        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Ground Entry Bundle</h2>
+                <p class="text-gray-600 mb-6">
+                    Dapatkan koleksi merchandise esensial dengan harga spesial!
+                </p>
+                <!-- Keychain IMMt Option Selection -->
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-800 mb-2">Pilih Jenis Keychain IMMt:</p>
+                    <div id="bundle-merch-essentials-keychain-options" class="flex flex-wrap gap-3 mb-2">
+                        <!-- Opsi Keychain IMMt akan dirender di sini -->
+                    </div>
+                </div>
+            </div>
+            <div class="mt-auto pt-4 border-t">
+                <p class="text-lg text-gray-600">Harga Normal: <s id="bundle-merch-essentials-normal-price" class="text-red-500">Rp 0</s></p>
+                <p class="text-2xl font-bold text-green-600">Harga Bundle: <span id="bundle-merch-essentials-discounted-price">Rp 0</span></p>
+                <p class="text-sm text-green-700 mt-1" id="bundle-merch-essentials-savings-message">Pilih opsi untuk melihat penghematan!</p>
+                <button id="add-bundle-merch-essentials-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 mt-4" disabled>
+                    Tambahkan Bundle ke Keranjang
+                </button>
+            </div>
+        </div>
+        <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="bundle-merch-essentials-modal">
+            <i class="w-6 h-6" data-lucide="x"></i>
+        </button>
+    </div>
   </div>
 
 
   <header class="shopee-header sticky top-0 z-40">
    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16 sm:h-20">
-     <a class="flex items-center gap-2" href="#">
+     <a class="flex items-center gap-2" href="#hero-section">
       <img alt="Logo IMMt Shop" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover" onerror="this.onerror=null; this.src='assets/logo.jpg';" src="assets/logo.jpg"/>
       <span class="text-xl font-bold logo-text hidden sm:block">
        IMMt SHOP
       </span>
      </a>
+     
      <div class="flex-1 search-bar">
       <div class="relative">
        <input class="w-full pl-10 pr-4 py-2 search-input text-sm sm:text-base" id="search-input" placeholder="Cari produk di IMMt SHOP..." type="text"/>
@@ -415,25 +622,26 @@
        </div>
       </div>
      </div>
-     <nav class="hidden md:flex items-center gap-6 text-white font-medium">
-        <a href="index.html" class="hover:text-gray-300 transition-colors">Beranda</a>
-        <a href="#products-grid" class="hover:text-gray-300 transition-colors">Produk</a>
-        <a href="#about-us" class="hover:text-gray-300 transition-colors">Tentang Kami</a>
-     </nav>
      <div class="flex items-center gap-2 sm:gap-4">
-      <button class="relative flex items-center p-2 rounded-full cart-button" id="open-cart-btn">
-       <i class="w-6 h-6 text-white" data-lucide="shopping-cart">
-       </i>
-       <span class="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full" id="cart-count-badge">
-        0
-       </span>
-      </button>
+        <!-- Navigation Links moved here -->
+        <nav class="hidden md:flex items-center space-x-6">
+            <a href="#hero-section" class="text-white hover:text-gray-300 font-medium">Beranda</a>
+            <a href="#products-grid-section" class="text-white hover:text-gray-300 font-medium">Produk</a>
+            <a href="#about-us" class="text-white hover:text-gray-300 font-medium">Tentang Kami</a>
+        </nav>
+        <button class="relative flex items-center p-2 rounded-full cart-button" id="open-cart-btn">
+            <i class="w-6 h-6 text-white" data-lucide="shopping-cart">
+            </i>
+            <span class="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full" id="cart-count-badge">
+                0
+            </span>
+        </button>
       </div>
     </div>
    </div>
   </header>
   <main>
-   <section class="hero-section">
+   <section class="hero-section" id="hero-section">
     <div class="hero-content">
      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
       Selamat Datang!
@@ -451,15 +659,12 @@
    </section>
    <section class="container mx-auto mt-8 mb-12 px-4">
     <div class="overflow-x-auto whitespace-nowrap scrollbar-hide">
-     <div class="flex space-x-4 justify-center">
-      <div class="min-w-[300px] bg-green-100 text-center rounded-lg p-4 text-green-900 font-bold" id="main-promo-card" data-promo-id="simak-bundle">
-       <img class="mb-2 rounded w-full h-40 object-cover aspect-video" src="assets/promo-simak-2.jpg" alt="Promo SIMAK EDITION!!"/>
-       SIMAK EDITION!!
-      </div>
+     <div class="flex space-x-4 justify-center" id="main-promo-cards-container">
+      <!-- Main promo cards will be rendered here dynamically -->
      </div>
     </div>
    </section>
-   <section class="container mx-auto text-center mt-16 mb-12 px-4">
+   <section class="container mx-auto text-center mt-16 mb-12 px-4" id="products-grid-section">
     <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
      Koleksi Produk Pilihan Kami
     </h1>
@@ -521,7 +726,58 @@
     </div>
    </div>
   </div>
-  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="success-modal">
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="product-detail-modal">
+   <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-4xl h-full overflow-scroll flex flex-col md:flex-row">
+    <div class="w-full md:w-1/2 p-4 flex flex-col">
+     <div class="relative zoom-container" id="main-image-container">
+      <img alt="Detail Produk" class="w-full h-96 object-contain rounded-lg zoom-image" id="main-product-image" src=""/>
+      <button class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full shadow-md hover:bg-white" id="prev-image-btn">
+       <i data-lucide="chevron-left">
+       </i>
+      </button>
+      <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 p-2 rounded-full shadow-md hover:bg-white" id="next-image-btn">
+       <i data-lucide="chevron-right">
+       </i>
+      </button>
+     </div>
+     <div class="flex gap-2 mt-4 justify-center" id="thumbnail-container">
+      </div>
+    </div>
+    <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+     <div>
+      <h2 class="text-3xl font-bold text-gray-900" id="detail-product-name">
+      </h2>
+      <p class="text-gray-600 text-sm mt-2 mb-4" id="detail-product-description"></p>
+      <!-- Display normal price and strikethrough price here -->
+      <div class="flex items-baseline my-4">
+          <p class="text-xl font-semibold text-gray-500 strikethrough-price" id="detail-normal-price" style="display: none;"></p>
+          <p class="text-2xl font-semibold text-indigo-600" id="detail-product-price"></p>
+      </div>
+      <div class="mt-4" id="detail-size-container">
+       <p class="font-semibold text-gray-800 mb-2">
+        Pilih Ukuran:
+       </p>
+       <div class="flex flex-wrap gap-3" id="detail-size-options">
+        </div>
+      </div>
+      <div class="mt-4" id="detail-option-container" style="display:none;">
+        <p class="font-semibold text-gray-800 mb-2" id="detail-option-label">Pilih Opsi:</p>
+        <div class="flex flex-wrap gap-3" id="detail-option-options">
+        </div>
+      </div>
+     </div>
+     <div class="mt-6" id="detail-action-container">
+      </div>
+    </div>
+    <button class="close-modal-btn absolute top-4 right-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200" data-modal-id="product-detail-modal">
+     <i class="w-6 h-6" data-lucide="x">
+     </i>
+    </button>
+   </div>
+  </div>
+  
+  <!-- Success Modal (moved from index.html to payment.html, but kept for custom alerts) -->
+  <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" id="success-modal" style="display:none;">
    <div class="modal-content bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
     <div class="mx-auto">
      <svg class="w-24 h-24 mx-auto" viewbox="0 0 100 100">
@@ -539,17 +795,9 @@
     </p>
    </div>
   </div>
-  <!-- Custom Alert Modal Structure -->
-  <div class="custom-alert-overlay hidden" id="custom-alert-modal">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
-        <p class="text-gray-600 mb-6" id="custom-alert-message"></p>
-        <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
-    </div>
-  </div>
   <script>
    document.addEventListener("DOMContentLoaded", () => {
-    // Firebase Configuration Keys
+    // Firebase Configuration Keys (Updated as per request 5)
     const firebaseConfig = {
       apiKey: "AIzaSyCCRGTeq4NN25eV31HuzeGqU8s3dhXIv5w",
       authDomain: "nyoba-doang-fd3e9.firebaseapp.com",
@@ -557,15 +805,12 @@
       storageBucket: "nyoba-doang-fd3e9.firebasestorage.app",
       messagingSenderId: "825164926042",
       appId: "1:825164926042:web:5b9b7ef8fc04a2acebdc63",
-      measurementId: "G-MFMLDSBK26"
+      measurementId: "G-MFMLDSBK26",
     };
 
-    // Cloudinary Configuration Keys (REPLACE WITH YOUR OWN KEYS!)
-    // Anda perlu membuat akun Cloudinary GRATIS dan mendapatkan ini.
-    // Upload Preset harus diatur sebagai "Unsigned" di dashboard Cloudinary Anda.
-    // Untuk menyembunyikan Cloudinary, atur ke string kosong.
-    const CLOUDINARY_CLOUD_NAME = ''; // Contoh: 'my-shop-cloud'
-    const CLOUDINARY_UPLOAD_PRESET = ''; // Contoh: 'unsigned_uploads'
+    // Cloudinary Configuration Keys (Disabled for testing as per request 4)
+    const CLOUDINARY_CLOUD_NAME = ''; // Set to empty string to disable
+    const CLOUDINARY_UPLOAD_PRESET = ''; // Set to empty string to disable
 
 
     // Initialize Firebase using global namespace (only Firestore is relevant)
@@ -577,8 +822,8 @@
       {
         id: 1,
         name: "Jas laboratorium",
-        price: 140000, // Original price
-        strikethroughPrice: 160000, // New strikethrough price
+        price: 145000, // Updated Price
+        strikethroughPrice: 160000, // No change, as per "tidak perlu diganti"
         description: "Jas Laboratorium berkualitas tinggi, dengan berbasis bahan american drill yang ketika dipakai akan terasa nyaman dan tidak panas. Wajib bagi setiap mahasiswa Metalurgi pada saat praktikum. Dilengkapi dengan bordir nama pada sisi kanan dan logo IMMt pada sisi kiri dada.",
         image: "assets/jaslab-1.jpg",
         hasSizes: true,
@@ -588,13 +833,13 @@
           "assets/jaslab-2.jpg",
           "assets/size-chart-a.jpg",
         ],
-        inBundle: true,
+        // inBundle: true, // Removed as bundles are now separate products
       },
       {
         id: 2,
         name: "Workshirt Kerja Praktik",
-        price: 160000, // Original price
-        strikethroughPrice: 175000, // New strikethrough price
+        price: 165000, // Updated Price
+        strikethroughPrice: 175000, // No change, as per "tidak perlu diganti"
         description: "Workshirt nyaman dan stylish untuk kegiatan kerja praktik Anda. Bahan kuat dan tahan lama yang siap dipakai kerja praktik anda.",
         image: "assets/workshirt-kp-1.jpg",
         hasSizes: true,
@@ -604,12 +849,13 @@
           "assets/workshirt-kp-2.jpg",
           "assets/size-chart-b.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       {
         id: 3,
         name: "Workshirt Metalurgi",
-        price: 179000,
+        price: 150000, // Updated Price (promo)
+        strikethroughPrice: 165000, // New strikethrough price (original)
         description: "Tunjukkan kebanggaan Anda sebagai mahasiswa metalurgi dengan workshirt eksklusif ini.",
         image: "assets/workshirt-metal-1.jpg",
         hasSizes: true,
@@ -619,12 +865,12 @@
           "assets/workshirt-metal-2.jpg",
           "assets/size-chart-c.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       {
         id: 4,
         name: "Sticker (3pcs)",
-        price: 15000,
+        price: 15000, // No change
         description: "Paket 3 stiker unik dengan desain IMMt. Cocok untuk laptop, buku, atau dimanapun.",
         image: "assets/sticker-pack-1.jpg",
         hasSizes: false,
@@ -632,12 +878,12 @@
           "assets/sticker-pack-1.jpg",
           "assets/sticker-pack-2.jpg",
         ],
-        inBundle: true, // In SIMAK bundle
+        // inBundle: true, // Removed as bundles are now separate products
       },
       {
         id: 5,
         name: "Sticker mobil",
-        price: 15000,
+        price: 15000, // No change
         description: "Stiker khusus untuk mobil Anda, tunjukkan identitas bahwa anda adalah bagian dari Teknik Metalurgi!",
         image: "assets/sticker-mobil-1.jpg",
         hasSizes: false,
@@ -646,13 +892,14 @@
         detailImages: [
           "assets/sticker-mobil-1.jpg",
           "assets/sticker-mobil-2.jpg",
+          "assets/sticker-mobil-3.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       {
         id: 6,
         name: "Keychain IMMt",
-        price: 15000,
+        price: 15000, // No change
         description: "Gantungan kunci eksklusif IMMt, tersedia dalam dua desain unik. Pilih favorit Anda!",
         image: "assets/keychain-immt-1.jpg",
         hasSizes: false,
@@ -661,13 +908,14 @@
         detailImages: [
           "assets/keychain-immt-1.jpg",
           "assets/keychain-immt-2.jpg",
+          "assets/keychain-immt-3.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       {
         id: 7,
         name: "Keychain Makara FTUI",
-        price: 15000,
+        price: 15000, // No change
         description: "Gantungan kunci Makara UI, simbol kebanggaan kami sebagai anak Teknik!",
         image: "assets/keychain-makara-1.jpg",
         hasSizes: false,
@@ -675,12 +923,12 @@
           "assets/keychain-makara-1.jpg",
           "assets/keychain-makara-2.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       {
         id: 8,
         name: "Paket Alat Gamtek",
-        price: 250000,
+        price: 250000, // No change
         description: "Paket lengkap alat gambar teknik untuk menunjang kebutuhan perkuliahan Anda ketika menghadapi mata kuliah gambar teknik!<br>Paket Gamtek Berisikan :<br>1. Tabung Gamtek 64 CM<br>2. Penggaris<br>3. Penggaris MOR<br>4. Penghapus<br>5. Mal Huruf 3 & 6 mm<br>6. Mal lingkaran<br>7. Pensil Mekanik 0.5 & 0.7<br> 8. Isi Pensil 0.5 & 0.7<br> 9. Jangka<br>10. Buku Gambar A3<br> 11. Buku MM Block",
         image: "assets/gamtek-1.jpg",
         hasSizes: false,
@@ -698,12 +946,13 @@
           "assets/gamtek-11.jpg",
           "assets/gamtek-12.jpg",
         ],
-        inBundle: false, // Not in SIMAK bundle
+        // inBundle: false, // Removed as bundles are now separate products
       },
       { // New Product: Topi
         id: 9,
         name: "Topi Metalurgi",
-        price: 35000, // Updated price
+        price: 35000, // Updated price (promo)
+        strikethroughPrice: 45000, // New strikethrough price (original)
         description: "Topi stylish dengan design yang sangat menarik, cocok untuk kegiatan sehari-hari menerjang panas dan hujan.",
         image: "assets/topi-immt-1.jpg",
         hasSizes: false,
@@ -711,82 +960,224 @@
           "assets/topi-immt-1.jpg",
           "assets/topi-immt-2.jpg",
         ],
-        inBundle: true, // In SIMAK bundle
+        // inBundle: true, // Removed as bundles are now separate products
       },
-      // Definisi Bundle Baru
+      // New Bundle: The Final Suit
       {
-        id: 'simak-bundle', // ID unik untuk bundle ini
-        name: 'SIMAK EDITION!! Bundle',
-        image: 'assets/promo-simak-1.jpg', // Gambar utama untuk bundle
-        description: 'Dapatkan Jaslab, Sticker (3pcs), dan Topi Metalurgi dengan harga spesial! Pilihan terbaik untuk persiapan SIMAK!',
-        isBundle: true,
-        bundleDiscount: 15000, // Diskon spesifik untuk bundle ini
-        bundleItems: [ // Daftar item yang termasuk dalam bundle
-            { productId: 1, quantity: 1, requiresSize: true, sizeProperty: 'jaslabSize' }, // Jaslab (ID 1) memerlukan ukuran
-            { productId: 4, quantity: 1 }, // Sticker (3pcs) (ID 4)
-            { productId: 9, quantity: 1 }  // Topi Metalurgi (ID 9)
-        ],
-        promoImages: [ // Gambar-gambar yang akan ditampilkan di halaman detail bundle
-            "assets/jaslab-1.jpg",
-            "assets/size-chart-a.jpg",
-            "assets/sticker-pack-1.jpg",
-            "assets/topi-immt-1.jpg",
-        ]
+          id: 10,
+          name: "The Final Suit ♠♥♣♦",
+          image: "assets/final-suit-bundle.jpg", // Placeholder image for overview
+          isBundle: true,
+          bundleItems: [
+              { id: 1, quantity: 1, type: 'jaslab', selectedSize: null }, // Jaslab
+              { id: 2, quantity: 1, type: 'workshirt-kp', selectedSize: null }, // Workshirt KP
+              { id: 3, quantity: 1, type: 'workshirt-metal', selectedSize: null }, // Workshirt Metalurgi
+              { id: 4, quantity: 1, type: 'sticker-pack' }, // Sticker (3pcs)
+              { id: 5, quantity: 1, type: 'sticker-mobil', selectable: true, selectedOption: null }, // Sticker mobil
+              { id: 6, quantity: 1, type: 'keychain-immt', selectable: true, selectedOption: null }, // Keychain IMMt
+              { id: 7, quantity: 1, type: 'keychain-makara' }, // Keychain Makara FTUI
+              { id: 8, quantity: 1, type: 'gamtek' }, // Paket Alat Gamtek
+              { id: 9, quantity: 1, type: 'topi' } // Topi Metalurgi
+          ],
+          description: "Paket lengkap untuk mahasiswa Metalurgi! Dapatkan semua merchandise dan perlengkapan akademis dalam satu bundle.",
+          detailImages: [
+              "assets/final-suit-bundle.jpg", // Main image for bundle modal
+              "assets/jaslab-1.jpg",
+              "assets/workshirt-kp-1.jpg",
+              "assets/workshirt-metal-1.jpg",
+              "assets/sticker-pack-1.jpg",
+              "assets/sticker-mobil-1.jpg",
+              "assets/keychain-immt-1.jpg",
+              "assets/keychain-makara-1.jpg",
+              "assets/gamtek-1.jpg", // Mengganti placeholder dengan path gambar yang valid
+              "assets/topi-immt-1.jpg"
+          ]
       },
-      // Tambahkan bundle lain di sini jika ada:
-      /*
+      // New Bundle: Face Card Edition
       {
-        id: 'bundle-wisuda',
-        name: 'Paket Wisuda Lengkap',
-        image: 'assets/bundle-wisuda.jpg',
-        description: 'Persiapan wisuda lebih mudah dengan paket lengkap ini!',
-        isBundle: true,
-        bundleDiscount: 20000,
-        bundleItems: [
-            { productId: 2, quantity: 1, requiresSize: true, sizeProperty: 'workshirtKpSize' }, // Contoh: Workshirt KP
-            { productId: 7, quantity: 1 }, // Contoh: Keychain Makara FTUI
-            // ... item lain
-        ],
-        promoImages: [
-            "assets/workshirt-kp-1.jpg",
-            "assets/keychain-makara-1.jpg",
-        ]
+          id: 11,
+          name: "Face Card Edition 🃏",
+          image: "assets/face-card-bundle.jpg", // Placeholder image for overview
+          isBundle: true,
+          bundleItems: [
+              { id: 3, quantity: 1, type: 'workshirt-metal', selectedSize: null }, // Workshirt Metalurgi
+              { id: 4, quantity: 1, type: 'sticker-pack' }, // Sticker (3pcs)
+              { id: 5, quantity: 1, type: 'sticker-mobil', selectable: true, selectedOption: null }, // Sticker mobil
+              { id: 6, quantity: 1, type: 'keychain-immt', selectable: true, selectedOption: null }, // Keychain IMMt
+              { id: 7, quantity: 1, type: 'keychain-makara' }, // Keychain Makara FTUI
+              { id: 9, quantity: 1, type: 'topi' } // Topi Metalurgi
+          ],
+          description: "Tunjukkan identitas Anda dengan bundle merchandise eksklusif ini!",
+          detailImages: [
+              "assets/face-card-bundle.jpg", // Main image for bundle modal
+              "assets/workshirt-metal-1.jpg",
+              "assets/sticker-pack-1.jpg",
+              "assets/sticker-mobil-1.jpg",
+              "assets/keychain-immt-1.jpg",
+              "assets/keychain-makara-1.jpg",
+              "assets/topi-immt-1.jpg"
+          ]
+      },
+      // New Bundle: Borderland Basic Kit
+      {
+          id: 12,
+          name: "Borderland Basic Kit Bundle",
+          image: "assets/borderland-bundle.jpg", // Placeholder image for overview
+          isBundle: true,
+          bundleItems: [
+              { id: 1, quantity: 1, type: 'jaslab', selectedSize: null }, // Jaslab
+              { id: 2, quantity: 1, type: 'workshirt-kp', selectedSize: null }, // Workshirt KP
+              { id: 8, quantity: 1, type: 'gamtek' } // Paket Alat Gamtek
+          ],
+          description: "Persiapkan diri Anda untuk dunia akademis dengan perlengkapan dasar yang wajib dimiliki!",
+          detailImages: [
+              "assets/borderland-bundle.jpg", // Main image for bundle modal
+              "assets/jaslab-1.jpg",
+              "assets/workshirt-kp-1.jpg",
+              "assets/gamtek-1.jpg"
+          ]
+      },
+      // New Bundle: Ground Entry Bundle
+      {
+          id: 13,
+          name: "Ground Entry Bundle",
+          image: "assets/ground-entry-bundle.jpg", // Placeholder image for overview
+          isBundle: true,
+          bundleItems: [
+              { id: 6, quantity: 1, type: 'keychain-immt', selectable: true, selectedOption: null }, // Keychain IMMt
+              { id: 7, quantity: 1, type: 'keychain-makara' }, // Keychain Makara FTUI
+              { id: 9, quantity: 1, type: 'topi' }, // Topi Metalurgi
+              { id: 4, quantity: 1, type: 'sticker-pack' } // Sticker (3pcs)
+          ],
+          description: "Dapatkan koleksi merchandise esensial dengan harga spesial!",
+          detailImages: [
+              "assets/ground-entry-bundle.jpg", // Main image for bundle modal
+              "assets/keychain-immt-1.jpg",
+              "assets/keychain-makara-1.jpg",
+              "assets/topi-immt-1.jpg",
+              "assets/sticker-pack-1.jpg"
+          ]
       }
-      */
     ];
 
-    // MODIFIED: Untuk menampilkan semua produk di bagian "Koleksi Produk Pilihan Kami"
-    const products = allProducts.filter(p => !p.isBundle); // Hanya tampilkan produk individual di grid utama
+    // Filter products, only display those with `isBundle: false` for the main product grid
+    const products = allProducts.filter(p => !p.isBundle);
 
     let cart = [];
-    let filteredProducts = [...products]; // Untuk menyimpan produk setelah filter pencarian
+    let currentDetailProduct = null;
+    let currentImageIndex = 0;
+    let selectedSize = null;
+    let selectedOption = null; // New variable for product options (e.g., keychain type)
+    let filteredProducts = [...products]; // To store products after search filter
+
+    // Variables for new bundle size/option selections
+    let bundleFinalSuitSelections = {
+        jaslabSize: null,
+        wsKpSize: null,
+        wsMetalSize: null,
+        keychainOption: null, // Corrected key
+        stickerOption: null   // Corrected key
+    };
+
+    let bundleFaceCardSelections = {
+        wsMetalSize: null,
+        keychainOption: null, // Corrected key
+        stickerOption: null   // Corrected key
+    };
+
+    let bundleBorderlandSelections = {
+        jaslabSize: null,
+        wsKpSize: null
+    };
+
+    let bundleMerchEssentialsSelections = {
+        keychainOption: null // Corrected key
+    };
+
 
     const dom = {
       productsGrid: document.getElementById("products-grid"),
       cartModal: document.getElementById("cart-modal"),
-      successModal: document.getElementById("success-modal"),
+      productDetailModal: document.getElementById("product-detail-modal"),
       productOverviewModal: document.getElementById("product-overview-modal"),
       closeProductOverviewModalBtn: document.getElementById("close-product-overview-modal"),
       openCartBtn: document.getElementById("open-cart-btn"),
       checkoutBtn: document.getElementById("checkout-btn"),
       cartItemsContainer: document.getElementById("cart-items"),
+      mainProductImage: document.getElementById("main-product-image"),
+      mainImageContainer: document.getElementById("main-image-container"), // New for zoom
+      thumbnailContainer: document.getElementById("thumbnail-container"),
+      prevImageBtn: document.getElementById("prev-image-btn"),
+      nextImageBtn: document.getElementById("next-image-btn"),
+      detailProductName: document.getElementById("detail-product-name"),
+      detailProductDescription: document.getElementById("detail-product-description"), // New element
+      detailNormalPrice: document.getElementById("detail-normal-price"), // New element for strikethrough price
+      detailProductPrice: document.getElementById("detail-product-price"),
+      detailSizeContainer: document.getElementById("detail-size-container"),
+      detailSizeOptions: document.getElementById("detail-size-options"),
+      detailOptionContainer: document.getElementById("detail-option-container"), // New element
+      detailOptionLabel: document.getElementById("detail-option-label"), // New element
+      detailOptionOptions: document.getElementById("detail-option-options"), // New element
+      detailActionContainer: document.getElementById(
+        "detail-action-container"
+      ),
       cartTotalEl: document.getElementById("cart-total"),
       cartCountBadge: document.getElementById("cart-count-badge"),
       closeModalBtns: document.querySelectorAll(".close-modal-btn"),
+      searchInput: document.getElementById("search-input"),
 
-      // Elements for main promo cards (now generic redirect)
-      promoSimakCard: document.getElementById("promo-simak-card"), // For overview
-      mainPromoCardSimak: document.getElementById("main-promo-card"), // For main promo section
+      // Elements for Product Overview and Main Promo Cards
+      productOverviewGrid: document.querySelector("#product-overview-modal .product-overview-grid"),
+      mainPromoCardsContainer: document.getElementById("main-promo-cards-container"),
+
+      // Elements for The Final Suit Bundle Modal
+      bundleFinalSuitModal: document.getElementById("bundle-final-suit-modal"),
+      bundleFinalSuitJaslabSizeOptions: document.getElementById("bundle-final-suit-jaslab-size-options"),
+      bundleFinalSuitWsKpSizeOptions: document.getElementById("bundle-final-suit-wskp-size-options"),
+      bundleFinalSuitWsMetalSizeOptions: document.getElementById("bundle-final-suit-wsmetal-size-options"),
+      bundleFinalSuitKeychainOptions: document.getElementById("bundle-final-suit-keychain-options"),
+      bundleFinalSuitStickerOptions: document.getElementById("bundle-final-suit-sticker-options"),
+      addBundleFinalSuitToCartBtn: document.getElementById("add-bundle-final-suit-to-cart-btn"),
+      bundleFinalSuitNormalPrice: document.getElementById("bundle-final-suit-normal-price"),
+      bundleFinalSuitDiscountedPrice: document.getElementById("bundle-final-suit-discounted-price"),
+      bundleFinalSuitSavingsMessage: document.getElementById("bundle-final-suit-savings-message"),
+
+      // Elements for Face Card Edition Bundle Modal
+      bundleFaceCardModal: document.getElementById("bundle-face-card-modal"),
+      bundleFaceCardWsMetalSizeOptions: document.getElementById("bundle-face-card-wsmetal-size-options"),
+      bundleFaceCardKeychainOptions: document.getElementById("bundle-face-card-keychain-options"),
+      bundleFaceCardStickerOptions: document.getElementById("bundle-face-card-sticker-options"),
+      addBundleFaceCardToCartBtn: document.getElementById("add-bundle-face-card-to-cart-btn"),
+      bundleFaceCardNormalPrice: document.getElementById("bundle-face-card-normal-price"),
+      bundleFaceCardDiscountedPrice: document.getElementById("bundle-face-card-discounted-price"),
+      bundleFaceCardSavingsMessage: document.getElementById("bundle-face-card-savings-message"),
+
+      // Elements for Borderland Basic Kit Bundle Modal
+      bundleBorderlandModal: document.getElementById("bundle-borderland-modal"),
+      bundleBorderlandJaslabSizeOptions: document.getElementById("bundle-borderland-jaslab-size-options"),
+      bundleBorderlandWsKpSizeOptions: document.getElementById("bundle-borderland-wskp-size-options"),
+      addBundleBorderlandToCartBtn: document.getElementById("add-bundle-borderland-to-cart-btn"),
+      bundleBorderlandNormalPrice: document.getElementById("bundle-borderland-normal-price"),
+      bundleBorderlandDiscountedPrice: document.getElementById("bundle-borderland-discounted-price"),
+      bundleBorderlandSavingsMessage: document.getElementById("bundle-borderland-savings-message"),
+
+      // Elements for Ground Entry Bundle Modal
+      bundleMerchEssentialsModal: document.getElementById("bundle-merch-essentials-modal"),
+      bundleMerchEssentialsKeychainOptions: document.getElementById("bundle-merch-essentials-keychain-options"),
+      addBundleMerchEssentialsToCartBtn: document.getElementById("add-bundle-merch-essentials-to-cart-btn"),
+      bundleMerchEssentialsNormalPrice: document.getElementById("bundle-merch-essentials-normal-price"),
+      bundleMerchEssentialsDiscountedPrice: document.getElementById("bundle-merch-essentials-discounted-price"),
+      bundleMerchEssentialsSavingsMessage: document.getElementById("bundle-merch-essentials-savings-message"),
 
       continueShoppingBtn: document.getElementById("continue-shopping-btn"), // New button for continue shopping
-
-      // Custom Alert Modal
-      customAlertModal: document.getElementById("custom-alert-modal"),
-      customAlertMessage: document.getElementById("custom-alert-message"),
-      closeAlertBtn: document.getElementById("close-alert-btn"),
-
-      searchInput: document.getElementById("search-input"),
     };
+
+    // Define bundle discount amounts (initially 0 as per request)
+    const BUNDLE_DISCOUNT_FINAL_SUIT = 45000;
+    const BUNDLE_DISCOUNT_FACE_CARD = 20000;
+    const BUNDLE_DISCOUNT_BORDERLAND = 20000;
+    const BUNDLE_DISCOUNT_MERCH_ESSENTIALS = 10000;
+
 
     // Helper function to format currency
     const formatCurrency = (n) =>
@@ -830,7 +1221,7 @@
           lucide.createIcons(); // Recreate icons when modal is visible
       } else {
           // Only re-enable scroll if no other modal is visible
-          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay')).some(m => m.classList.contains('visible'));
+          const anyOtherModalVisible = Array.from(document.querySelectorAll('.modal-overlay, .product-overview-modal-overlay')).some(m => m.classList.contains('visible'));
           if (!anyOtherModalVisible) {
               document.body.style.overflow = ''; // Enable body scroll
           }
@@ -846,6 +1237,9 @@
           return;
       }
       productsToRender.forEach((product) => {
+        // Only render non-bundle products in the main grid
+        if (product.isBundle) return;
+
         // Determine price to display on product card (original price)
         const displayPrice = product.price;
         // Determine strikethrough price if available
@@ -877,17 +1271,6 @@
                     </div>`;
         dom.productsGrid.innerHTML += productCard;
       });
-    };
-
-    // Function to load cart from localStorage
-    const loadCart = () => {
-        const storedCart = localStorage.getItem('immtShopCart');
-        cart = storedCart ? JSON.parse(storedCart) : [];
-    };
-
-    // Function to save cart to localStorage
-    const saveCart = () => {
-        localStorage.setItem('immtShopCart', JSON.stringify(cart));
     };
 
     const renderCart = () => {
@@ -966,6 +1349,68 @@
       lucide.createIcons();
     };
 
+    const addToCart = (productToAdd, size = null, option = null, quantity = 1) => {
+      // If adding a bundle, productToAdd is already the bundle object
+      if (productToAdd.isBundle) {
+          console.log("Attempting to add bundle to cart:", productToAdd); // Debugging line
+          if (!productToAdd.calculatedPrice || productToAdd.calculatedPrice <= 0) {
+              console.error("Harga bundle tidak valid:", productToAdd.calculatedPrice);
+              showCustomAlert("Harga bundle belum dihitung dengan benar. Harap lengkapi semua pilihan.");
+              return;
+          }
+          if (!productToAdd.bundleDetails || productToAdd.bundleDetails.length === 0) {
+              console.error("Detail bundle kosong atau tidak ada:", productToAdd.bundleDetails);
+              showCustomAlert("Detail bundle tidak lengkap. Harap lengkapi semua pilihan.");
+              return;
+          }
+          const bundleCartItem = {
+              cartItemId: productToAdd.id + '-' + (size ? size : 'no-size') + '-' + (option ? option : 'no-option') + '-' + Date.now(), // Unique ID for this bundle instance
+              id: productToAdd.id, // Bundle's main ID
+              name: productToAdd.name,
+              image: productToAdd.image,
+              quantity: quantity,
+              finalPrice: productToAdd.calculatedPrice, // Use the pre-calculated price from the bundle object
+              isBundle: true,
+              bundleDetails: productToAdd.bundleDetails // Detailed list for Firebase & payment summary
+          };
+          cart.push(bundleCartItem);
+          showCustomAlert(`${productToAdd.name} telah ditambahkan ke keranjang!`);
+      } else {
+          // Existing logic for individual products
+          const product = allProducts.find((p) => p.id === productToAdd.id);
+          if (!product) {
+              console.error(`Produk dengan ID ${productToAdd.id} tidak ditemukan.`);
+              return;
+          }
+          let finalPrice = product.price;
+
+          if (product.hasSizes && size) {
+            finalPrice = calculatePrice(finalPrice, size, product.id);
+          }
+          
+          const cartItemId = (size ? `${product.id}-${size}` : `${product.id}`) + (option ? `-${option}` : '');
+          let cartItem = cart.find((item) => item.cartItemId === cartItemId);
+
+          if (cartItem) {
+            cartItem.quantity += quantity;
+          } else {
+            cart.push({
+              ...product,
+              quantity: quantity,
+              size,
+              option,
+              finalPrice,
+              cartItemId,
+              isBundle: false
+            });
+          }
+          showCustomAlert(`${product.name} telah ditambahkan ke keranjang!`);
+      }
+      updateUI();
+      renderDetailActionButtons();
+    };
+
+
     const updateCartQuantity = (cartItemId, change) => {
       let cartItem = cart.find((item) => item.cartItemId === cartItemId);
       if (!cartItem || cartItem.isBundle) { // Prevent quantity change for bundles in cart
@@ -975,24 +1420,518 @@
       if (cartItem.quantity <= 0) {
         cart = cart.filter((item) => item.cartItemId !== cartItemId);
       }
-      saveCart(); // Save cart after updating quantity
       updateUI();
+      renderDetailActionButtons();
     };
+
+    const openProductDetail = (productId) => {
+      currentDetailProduct = allProducts.find((p) => p.id === productId); // Use allProducts here
+      if (!currentDetailProduct) return;
+      selectedSize = null;
+      selectedOption = null; // Reset selected option
+
+      dom.detailProductName.textContent = currentDetailProduct.name;
+      dom.detailProductDescription.innerHTML = currentDetailProduct.description || ''; // Display description
+      currentImageIndex = 0;
+      renderProductImages();
+      renderDetailActionButtons();
+
+      // Handle sizes
+      if (currentDetailProduct.hasSizes) {
+        dom.detailSizeContainer.style.display = 'block';
+        dom.detailSizeOptions.innerHTML = currentDetailProduct.sizes
+                          .map(
+                            (size) =>
+                              `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                          )
+                          .join("");
+        
+        // Display strikethrough price if available
+        if (currentDetailProduct.strikethroughPrice) {
+            dom.detailNormalPrice.textContent = formatCurrency(currentDetailProduct.strikethroughPrice);
+            dom.detailNormalPrice.style.display = 'inline';
+        } else {
+            dom.detailNormalPrice.style.display = 'none';
+        }
+
+        dom.detailProductPrice.textContent =
+          formatCurrency(currentDetailProduct.price) + " (mulai)";
+      } else {
+        dom.detailSizeContainer.style.display = 'none';
+        dom.detailSizeOptions.innerHTML = "";
+        dom.detailNormalPrice.style.display = 'none'; // Hide strikethrough price if no sizes
+        dom.detailProductPrice.textContent = formatCurrency(
+          currentDetailProduct.price
+        );
+      }
+
+      // Handle options (for Keychain IMMt and Sticker Mobil)
+      if (currentDetailProduct.hasOptions && currentDetailProduct.options) {
+        dom.detailOptionContainer.style.display = 'block';
+        dom.detailOptionOptions.innerHTML = currentDetailProduct.options
+            .map(option => `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`)
+            .join("");
+        dom.detailOptionLabel.textContent = "Pilih Varian:"; // More specific label
+      } else {
+        dom.detailOptionContainer.style.display = 'none';
+        dom.detailOptionOptions.innerHTML = "";
+      }
+
+      toggleModal(dom.productDetailModal, true);
+      lucide.createIcons();
+    };
+
+    const renderProductImages = () => {
+      const mainImage = dom.mainProductImage;
+      const mainImageContainer = dom.mainImageContainer;
+
+      mainImage.src = currentDetailProduct.detailImages[currentImageIndex];
+      mainImage.onerror = () => {
+        mainImage.src = "assets/placeholder.png";
+      };
+
+      // Reset zoom state when image changes
+      mainImageContainer.classList.remove('zoomed');
+      mainImage.style.transform = 'scale(1)';
+      mainImage.style.cursor = 'zoom-in';
+
+      // Check if the current image is a size chart
+      const isSizeChart = currentDetailProduct.detailImages[currentImageIndex].includes('size-chart');
+      if (isSizeChart) {
+          mainImageContainer.classList.add('size-chart-image'); // Add a class to indicate it's a size chart
+          mainImageContainer.style.cursor = 'zoom-in'; // Ensure cursor indicates zoomability
+      } else {
+          mainImageContainer.classList.remove('size-chart-image');
+          mainImageContainer.style.cursor = 'default'; // Default cursor for non-size chart images
+      }
+
+      dom.thumbnailContainer.innerHTML = "";
+      currentDetailProduct.detailImages.forEach((imgSrc, index) => {
+        const thumb = document.createElement("img");
+        thumb.src = imgSrc;
+        thumb.className = `w-16 h-16 object-cover rounded-md cursor-pointer border-2 opacity-60 hover:opacity-100 ${
+          index === currentImageIndex
+            ? "thumbnail-active"
+            : "border-transparent"
+        }`;
+        thumb.onclick = () => {
+          currentImageIndex = index;
+          renderProductImages();
+        };
+        dom.thumbnailContainer.appendChild(thumb);
+      });
+    };
+
+    // Image zoom functionality
+    dom.mainImageContainer.addEventListener('click', (e) => {
+        const mainImage = dom.mainProductImage;
+        const container = dom.mainImageContainer;
+
+        // Only zoom if it's a size chart image
+        if (!container.classList.contains('size-chart-image')) {
+            return;
+        }
+
+        if (container.classList.contains('zoomed')) {
+            // Zoom out
+            mainImage.style.transform = 'scale(1)';
+            container.classList.remove('zoomed');
+            container.style.cursor = 'zoom-in';
+        } else {
+            // Zoom in
+            const rect = mainImage.getBoundingClientRect();
+            const offsetX = e.clientX - rect.left;
+            const offsetY = e.clientY - rect.top;
+
+            const transformOriginX = (offsetX / rect.width) * 100;
+            const transformOriginY = (offsetY / rect.height) * 100;
+
+            mainImage.style.transformOrigin = `${transformOriginX}% ${transformOriginY}%`;
+            mainImage.style.transform = 'scale(2)'; // Zoom level
+            container.classList.add('zoomed');
+            container.style.cursor = 'zoom-out';
+        }
+    });
+
+    const renderDetailActionButtons = () => {
+      if (!currentDetailProduct) return;
+
+      let cartHtml = '';
+      const existingCartItem = cart.find(item =>
+          item.id === currentDetailProduct.id &&
+          (!currentDetailProduct.hasSizes || item.size === selectedSize) &&
+          (!currentDetailProduct.hasOptions || item.option === selectedOption) &&
+          !item.isBundle // Exclude bundles from this check
+      );
+
+      if (existingCartItem) {
+        // Item is in cart, show quantity controls
+        cartHtml = `
+            <div class="flex items-center justify-center border rounded-lg w-full">
+                <button class="detail-quantity-btn p-4 flex-1" data-cart-item-id="${existingCartItem.cartItemId}" data-change="-1" ${existingCartItem.quantity === 1 ? 'disabled' : ''}>-</button>
+                <span class="px-6 font-bold text-xl">${existingCartItem.quantity} di keranjang</span>
+                <button class="detail-quantity-btn p-4 flex-1" data-cart-item-id="${existingCartItem.cartItemId}" data-change="1">+</button>
+            </div>`;
+      } else {
+        // Item not in cart, show "Add to Cart" button
+        let isDisabled = false;
+        if (currentDetailProduct.hasSizes && !selectedSize) {
+            isDisabled = true;
+        }
+        if (currentDetailProduct.hasOptions && !selectedOption) {
+            isDisabled = true;
+        }
+        cartHtml = `<button id="add-detail-to-cart-btn" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2" ${isDisabled ? 'disabled' : ''}>
+                <i data-lucide="shopping-bag"></i>
+                <span>Tambahkan ke Keranjang</span>
+            </button>`;
+      }
+      dom.detailActionContainer.innerHTML = cartHtml;
+      lucide.createIcons();
+    };
+    // End of Function Definitions
+
 
     const updateUI = () => {
       renderProducts(filteredProducts); // Render filtered products
       renderCart();
+      renderPromoCards(); // Render new promo cards
     };
+
+    // Function to render promo cards in the overview modal and main section
+    const renderPromoCards = () => {
+        dom.productOverviewGrid.innerHTML = '';
+        dom.mainPromoCardsContainer.innerHTML = '';
+
+        const bundles = allProducts.filter(p => p.isBundle);
+
+        bundles.forEach(bundle => {
+            const promoCardHtml = `
+                <div class="product-overview-item" data-promo-id="${bundle.id}">
+                    <img alt="${bundle.name}" class="w-full h-40 object-cover" src="${bundle.image}"/>
+                    <h3 class="product-overview-title">${bundle.name}</h3>
+                    <p class="product-overview-description">${bundle.description}</p>
+                    <p class="product-overview-price">Lihat Detail</p>
+                </div>
+            `;
+            dom.productOverviewGrid.innerHTML += promoCardHtml;
+
+            const mainPromoCardHtml = `
+                <div class="min-w-[300px] bg-green-100 text-center rounded-lg p-4 text-green-900 font-bold" id="main-promo-card" data-promo-id="${bundle.id}">
+                    <img class="mb-2 rounded w-full h-40 object-cover aspect-video" src="${bundle.image}" alt="${bundle.name}"/>
+                    ${bundle.name}
+                </div>
+            `;
+            dom.mainPromoCardsContainer.innerHTML += mainPromoCardHtml;
+        });
+
+        lucide.createIcons(); // Recreate icons for newly added elements
+    };
+
+
+    // Function to update bundle prices and savings message for The Final Suit Bundle
+    const updateBundleFinalSuitPrices = () => {
+        const bundle = allProducts.find(b => b.id === 10);
+        let totalNormalPrice = 0;
+        let totalCurrentPrice = 0;
+        let allSelectionsMade = true;
+        const bundleDetails = []; // To store selected details for cart
+
+        bundle.bundleItems.forEach(item => {
+            const product = allProducts.find(p => p.id === item.id);
+            let currentItemPrice = product.price;
+            let currentItemStrikethroughPrice = product.strikethroughPrice || product.price;
+            let itemSelectedOption = null;
+            let itemSelectedSize = null;
+
+            if (product.hasSizes) {
+                // Determine the correct selection key for sizes
+                if (item.type === 'jaslab') {
+                    itemSelectedSize = bundleFinalSuitSelections.jaslabSize;
+                } else if (item.type === 'workshirt-kp') {
+                    itemSelectedSize = bundleFinalSuitSelections.wsKpSize;
+                } else if (item.type === 'workshirt-metal') {
+                    itemSelectedSize = bundleFinalSuitSelections.wsMetalSize;
+                }
+                
+                if (!itemSelectedSize) {
+                    allSelectionsMade = false;
+                } else {
+                    currentItemPrice = calculatePrice(product.price, itemSelectedSize, product.id);
+                    currentItemStrikethroughPrice = calculatePrice(product.strikethroughPrice || product.price, itemSelectedSize, product.id);
+                }
+            }
+            if (product.hasOptions) {
+                // Correctly map item.type to the selection key for options
+                if (item.type === 'keychain-immt') {
+                    itemSelectedOption = bundleFinalSuitSelections.keychainOption;
+                } else if (item.type === 'sticker-mobil') {
+                    itemSelectedOption = bundleFinalSuitSelections.stickerOption;
+                }
+                
+                if (!itemSelectedOption) {
+                    allSelectionsMade = false;
+                }
+            }
+
+            totalCurrentPrice += currentItemPrice * item.quantity;
+            totalNormalPrice += currentItemStrikethroughPrice * item.quantity;
+
+            bundleDetails.push({
+                id: product.id,
+                name: product.name,
+                size: itemSelectedSize,
+                option: itemSelectedOption,
+                quantity: item.quantity,
+                price: currentItemPrice,
+                strikethroughPrice: currentItemStrikethroughPrice
+            });
+        });
+
+        const finalDiscountedBundlePrice = totalCurrentPrice - BUNDLE_DISCOUNT_FINAL_SUIT;
+        const savings = totalNormalPrice - finalDiscountedBundlePrice;
+
+        dom.bundleFinalSuitNormalPrice.innerHTML = formatCurrency(totalNormalPrice);
+        dom.bundleFinalSuitDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
+
+        if (allSelectionsMade) {
+            dom.addBundleFinalSuitToCartBtn.disabled = false;
+            dom.bundleFinalSuitSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
+            // Store calculated price and details on the bundle object for addToCart
+            bundle.calculatedPrice = finalDiscountedBundlePrice;
+            bundle.bundleDetails = bundleDetails;
+            console.log("The Final Suit Bundle: Semua pilihan sudah dibuat. Harga Terhitung:", bundle.calculatedPrice, "Detail Bundle:", bundle.bundleDetails);
+        } else {
+            dom.addBundleFinalSuitToCartBtn.disabled = true;
+            dom.bundleFinalSuitSavingsMessage.textContent = 'Pilih ukuran dan opsi untuk melihat penghematan!';
+            bundle.calculatedPrice = 0;
+            bundle.bundleDetails = [];
+            console.log("The Final Suit Bundle: Pilihan belum lengkap.");
+        }
+    };
+
+    // Function to update bundle prices and savings message for Face Card Edition Bundle
+    const updateBundleFaceCardPrices = () => {
+        const bundle = allProducts.find(b => b.id === 11);
+        let totalNormalPrice = 0;
+        let totalCurrentPrice = 0;
+        let allSelectionsMade = true;
+        const bundleDetails = [];
+
+        bundle.bundleItems.forEach(item => {
+            const product = allProducts.find(p => p.id === item.id);
+            let currentItemPrice = product.price;
+            let currentItemStrikethroughPrice = product.strikethroughPrice || product.price;
+            let itemSelectedOption = null;
+            let itemSelectedSize = null;
+
+            if (product.hasSizes) {
+                // Determine the correct selection key for sizes
+                if (item.type === 'workshirt-metal') {
+                    itemSelectedSize = bundleFaceCardSelections.wsMetalSize;
+                }
+                
+                if (!itemSelectedSize) {
+                    allSelectionsMade = false;
+                } else {
+                    currentItemPrice = calculatePrice(product.price, itemSelectedSize, product.id);
+                    currentItemStrikethroughPrice = calculatePrice(product.strikethroughPrice || product.price, itemSelectedSize, product.id);
+                }
+            }
+            if (product.hasOptions) {
+                // Correctly map item.type to the selection key for options
+                if (item.type === 'keychain-immt') {
+                    itemSelectedOption = bundleFaceCardSelections.keychainOption;
+                } else if (item.type === 'sticker-mobil') {
+                    itemSelectedOption = bundleFaceCardSelections.stickerOption;
+                }
+                
+                if (!itemSelectedOption) {
+                    allSelectionsMade = false;
+                }
+            }
+
+            totalCurrentPrice += currentItemPrice * item.quantity;
+            totalNormalPrice += currentItemStrikethroughPrice * item.quantity;
+
+            bundleDetails.push({
+                id: product.id,
+                name: product.name,
+                size: itemSelectedSize,
+                option: itemSelectedOption,
+                quantity: item.quantity,
+                price: currentItemPrice,
+                strikethroughPrice: currentItemStrikethroughPrice
+            });
+        });
+
+        const finalDiscountedBundlePrice = totalCurrentPrice - BUNDLE_DISCOUNT_FACE_CARD;
+        const savings = totalNormalPrice - finalDiscountedBundlePrice;
+
+        dom.bundleFaceCardNormalPrice.innerHTML = formatCurrency(totalNormalPrice);
+        dom.bundleFaceCardDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
+
+        if (allSelectionsMade) {
+            dom.addBundleFaceCardToCartBtn.disabled = false;
+            dom.bundleFaceCardSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
+            bundle.calculatedPrice = finalDiscountedBundlePrice;
+            bundle.bundleDetails = bundleDetails;
+            console.log("Face Card Edition Bundle: Semua pilihan sudah dibuat. Harga Terhitung:", bundle.calculatedPrice, "Detail Bundle:", bundle.bundleDetails);
+        } else {
+            dom.addBundleFaceCardToCartBtn.disabled = true;
+            dom.bundleFaceCardSavingsMessage.textContent = 'Pilih ukuran dan opsi untuk melihat penghematan!';
+            bundle.calculatedPrice = 0;
+            bundle.bundleDetails = [];
+            console.log("Face Card Edition Bundle: Pilihan belum lengkap.");
+        }
+    };
+
+    // Function to update bundle prices and savings message for Borderland Basic Kit Bundle
+    const updateBundleBorderlandPrices = () => {
+        const bundle = allProducts.find(b => b.id === 12);
+        let totalNormalPrice = 0;
+        let totalCurrentPrice = 0;
+        let allSelectionsMade = true;
+        const bundleDetails = [];
+
+        bundle.bundleItems.forEach(item => {
+            const product = allProducts.find(p => p.id === item.id);
+            let currentItemPrice = product.price;
+            let currentItemStrikethroughPrice = product.strikethroughPrice || product.price;
+            let itemSelectedSize = null;
+
+            if (product.hasSizes) {
+                // Determine the correct selection key for sizes
+                if (item.type === 'jaslab') {
+                    itemSelectedSize = bundleBorderlandSelections.jaslabSize;
+                } else if (item.type === 'workshirt-kp') {
+                    itemSelectedSize = bundleBorderlandSelections.wsKpSize;
+                }
+                
+                if (!itemSelectedSize) {
+                    allSelectionsMade = false;
+                } else {
+                    currentItemPrice = calculatePrice(product.price, itemSelectedSize, product.id);
+                    currentItemStrikethroughPrice = calculatePrice(product.strikethroughPrice || product.price, itemSelectedSize, product.id);
+                }
+            }
+
+            totalCurrentPrice += currentItemPrice * item.quantity;
+            totalNormalPrice += currentItemStrikethroughPrice * item.quantity;
+
+            bundleDetails.push({
+                id: product.id,
+                name: product.name,
+                size: itemSelectedSize,
+                option: null, // No options for these items in this bundle
+                quantity: item.quantity,
+                price: currentItemPrice,
+                strikethroughPrice: currentItemStrikethroughPrice
+            });
+        });
+
+        const finalDiscountedBundlePrice = totalCurrentPrice - BUNDLE_DISCOUNT_BORDERLAND;
+        const savings = totalNormalPrice - finalDiscountedBundlePrice;
+
+        dom.bundleBorderlandNormalPrice.innerHTML = formatCurrency(totalNormalPrice);
+        dom.bundleBorderlandDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
+
+        if (allSelectionsMade) {
+            dom.addBundleBorderlandToCartBtn.disabled = false;
+            dom.bundleBorderlandSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
+            bundle.calculatedPrice = finalDiscountedBundlePrice;
+            bundle.bundleDetails = bundleDetails;
+            console.log("Borderland Basic Kit Bundle: Semua pilihan sudah dibuat. Harga Terhitung:", bundle.calculatedPrice, "Detail Bundle:", bundle.bundleDetails);
+        } else {
+            dom.addBundleBorderlandToCartBtn.disabled = true;
+            dom.bundleBorderlandSavingsMessage.textContent = 'Pilih ukuran untuk melihat penghematan!';
+            bundle.calculatedPrice = 0;
+            bundle.bundleDetails = [];
+            console.log("Borderland Basic Kit Bundle: Pilihan belum lengkap.");
+        }
+    };
+
+    // Function to update bundle prices and savings message for Ground Entry Bundle
+    const updateBundleMerchEssentialsPrices = () => {
+        const bundle = allProducts.find(b => b.id === 13);
+        let totalNormalPrice = 0;
+        let totalCurrentPrice = 0;
+        let allSelectionsMade = true;
+        const bundleDetails = [];
+
+        bundle.bundleItems.forEach(item => {
+            const product = allProducts.find(p => p.id === item.id);
+            let currentItemPrice = product.price;
+            let currentItemStrikethroughPrice = product.strikethroughPrice || product.price;
+            let itemSelectedOption = null;
+
+            // Check if the item requires an option (like Keychain IMMt)
+            if (product.hasOptions) {
+                // For Ground Entry, the only item with options is Keychain IMMt (id: 6)
+                // Ensure we are checking the correct selection variable
+                if (item.id === 6) { // Keychain IMMt
+                    itemSelectedOption = bundleMerchEssentialsSelections.keychainOption;
+                }
+                // Add other option-based items here if they are part of this bundle
+                
+                if (!itemSelectedOption) {
+                    allSelectionsMade = false;
+                }
+            }
+
+            totalCurrentPrice += currentItemPrice * item.quantity;
+            totalNormalPrice += currentItemStrikethroughPrice * item.quantity;
+
+            bundleDetails.push({
+                id: product.id,
+                name: product.name,
+                size: null, // No sizes in this bundle
+                option: itemSelectedOption,
+                quantity: item.quantity,
+                price: currentItemPrice,
+                strikethroughPrice: currentItemStrikethroughPrice
+            });
+        });
+
+        const finalDiscountedBundlePrice = totalCurrentPrice - BUNDLE_DISCOUNT_MERCH_ESSENTIALS;
+        const savings = totalNormalPrice - finalDiscountedBundlePrice;
+
+        dom.bundleMerchEssentialsNormalPrice.innerHTML = formatCurrency(totalNormalPrice);
+        dom.bundleMerchEssentialsDiscountedPrice.textContent = formatCurrency(finalDiscountedBundlePrice);
+
+        if (allSelectionsMade) {
+            dom.addBundleMerchEssentialsToCartBtn.disabled = false;
+            dom.bundleMerchEssentialsSavingsMessage.textContent = `Hemat ${formatCurrency(savings)}!`;
+            bundle.calculatedPrice = finalDiscountedBundlePrice;
+            bundle.bundleDetails = bundleDetails;
+            console.log("Ground Entry Bundle: Semua pilihan sudah dibuat. Harga Terhitung:", bundle.calculatedPrice, "Detail Bundle:", bundle.bundleDetails);
+        } else {
+            dom.addBundleMerchEssentialsToCartBtn.disabled = true;
+            dom.bundleMerchEssentialsSavingsMessage.textContent = 'Pilih opsi untuk melihat penghematan!';
+            bundle.calculatedPrice = 0;
+            bundle.bundleDetails = [];
+            console.log("Ground Entry Bundle: Pilihan belum lengkap.");
+        }
+    };
+
 
     // Custom alert modal implementation
     const showCustomAlert = (message) => {
-        dom.customAlertMessage.textContent = message;
-        dom.customAlertModal.classList.remove('hidden');
-    };
+        const alertModal = document.createElement('div');
+        alertModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4';
+        alertModal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Pemberitahuan</h3>
+                <p class="text-gray-600 mb-6">${message}</p>
+                <button class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700" id="close-alert-btn">OK</button>
+            </div>
+        `;
+        document.body.appendChild(alertModal);
 
-    dom.closeAlertBtn.addEventListener('click', () => {
-        dom.customAlertModal.classList.add('hidden');
-    });
+        alertModal.querySelector('#close-alert-btn').addEventListener('click', () => {
+            document.body.removeChild(alertModal);
+        });
+    };
 
     // Event Listeners
 
@@ -1001,28 +1940,171 @@
         const productCard = e.target.closest(".product-card");
         if (productCard) {
             const productId = parseInt(productCard.dataset.productId);
-            // Redirect to product_detail.html with product ID
-            window.location.href = `product_detail.html?id=${productId}`;
+            openProductDetail(productId);
         }
     });
 
     // Main Event Listener using event delegation on document.body
     document.body.addEventListener("click", (e) => {
+        // --- Handling Buttons in Product Detail Modal ---
+        const addBtn = e.target.closest("#add-detail-to-cart-btn");
+        if (addBtn) {
+            if (currentDetailProduct.hasSizes && !selectedSize) {
+                showCustomAlert("Silakan pilih ukuran terlebih dahulu.");
+                return;
+            }
+            if (currentDetailProduct.hasOptions && !selectedOption) {
+                showCustomAlert("Silakan pilih varian terlebih dahulu.");
+                return;
+            }
+            addToCart(currentDetailProduct, selectedSize, selectedOption);
+            toggleModal(dom.productDetailModal, false);
+            toggleModal(dom.cartModal, true); // Show cart after adding item
+            return; // Important: stop execution after handling event
+        }
+
+        const detailQuantityBtn = e.target.closest(".detail-quantity-btn");
+        if (detailQuantityBtn) {
+            const cartItemId = detailQuantityBtn.dataset.cartItemId;
+            const change = parseInt(detailQuantityBtn.dataset.change);
+            updateCartQuantity(cartItemId, change);
+            return; // Important: stop execution after handling event
+        }
+
         const removeCartBtn = e.target.closest(".remove-from-cart-btn");
         if (removeCartBtn) {
             cart = cart.filter(
                 (item) => item.cartItemId !== removeCartBtn.dataset.cartItemId
             );
-            saveCart(); // Save cart after removing item
             updateUI();
             return; // Important: stop execution after handling event
         }
 
-        const updateQuantityBtn = e.target.closest(".update-cart-quantity-btn");
-        if (updateQuantityBtn) {
-            const cartItemId = updateQuantityBtn.dataset.cartItemId;
-            const change = parseInt(updateQuantityBtn.dataset.change);
-            updateCartQuantity(cartItemId, change);
+        // --- Handling Size Options in Product Detail (Already existed, but moved here for consistency) ---
+        if (e.target.matches("#detail-size-options .size-btn")) {
+            document
+              .querySelectorAll("#detail-size-options .size-btn")
+              .forEach((btn) =>
+                btn.classList.remove("bg-green-600", "text-white")
+              );
+            e.target.classList.add("bg-green-600", "text-white");
+            selectedSize = e.target.dataset.size;
+            const price = calculatePrice(
+              currentDetailProduct.price,
+              selectedSize,
+              currentDetailProduct.id // Pass productId to calculatePrice
+            );
+            dom.detailProductPrice.textContent = formatCurrency(price);
+            
+            // Update strikethrough price if applicable
+            if (currentDetailProduct.strikethroughPrice) {
+                const strikethroughPrice = calculatePrice(currentDetailProduct.strikethroughPrice, selectedSize, currentDetailProduct.id);
+                dom.detailNormalPrice.textContent = formatCurrency(strikethroughPrice);
+                dom.detailNormalPrice.style.display = 'inline';
+            } else {
+                dom.detailNormalPrice.style.display = 'none';
+            }
+
+            renderDetailActionButtons(); // Re-render button to enable quantity if a size is selected
+            return;
+        }
+
+        // --- Handling Option Choices in Product Detail (Already existed, but moved here for consistency) ---
+        if (e.target.matches("#detail-option-options .option-btn")) {
+            document
+              .querySelectorAll("#detail-option-options .option-btn")
+              .forEach((btn) =>
+                btn.classList.remove("bg-green-600", "text-white")
+              );
+            e.target.classList.add("bg-green-600", "text-white");
+            selectedOption = e.target.dataset.option;
+            renderDetailActionButtons(); // Re-render button to enable quantity if an option is selected
+            return;
+        }
+
+        // --- Handling Size/Option selections in Bundle Modals ---
+        // The Final Suit
+        if (e.target.matches('#bundle-final-suit-jaslab-size-options .size-btn')) {
+            dom.bundleFinalSuitJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.jaslabSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-final-suit-wskp-size-options .size-btn')) {
+            dom.bundleFinalSuitWsKpSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.wsKpSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-final-suit-wsmetal-size-options .size-btn')) {
+            dom.bundleFinalSuitWsMetalSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.wsMetalSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-final-suit-keychain-options .option-btn')) {
+            dom.bundleFinalSuitKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.keychainOption = e.target.dataset.option;
+            updateBundleFinalSuitPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-final-suit-sticker-options .option-btn')) {
+            dom.bundleFinalSuitStickerOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.stickerOption = e.target.dataset.option;
+            updateBundleFinalSuitPrices();
+            return;
+        }
+
+        // Face Card Edition
+        if (e.target.matches('#bundle-face-card-wsmetal-size-options .size-btn')) {
+            dom.bundleFaceCardWsMetalSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.wsMetalSize = e.target.dataset.size;
+            updateBundleFaceCardPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-face-card-keychain-options .option-btn')) {
+            dom.bundleFaceCardKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.keychainOption = e.target.dataset.option;
+            updateBundleFaceCardPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-face-card-sticker-options .option-btn')) {
+            dom.bundleFaceCardStickerOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.stickerOption = e.target.dataset.option;
+            updateBundleFaceCardPrices();
+            return;
+        }
+
+        // Borderland Basic Kit
+        if (e.target.matches('#bundle-borderland-jaslab-size-options .size-btn')) {
+            dom.bundleBorderlandJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleBorderlandSelections.jaslabSize = e.target.dataset.size;
+            updateBundleBorderlandPrices();
+            return;
+        }
+        if (e.target.matches('#bundle-borderland-wskp-size-options .size-btn')) {
+            dom.bundleBorderlandWsKpSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleBorderlandSelections.wsKpSize = e.target.dataset.size;
+            updateBundleBorderlandPrices();
+            return;
+        }
+
+        // Ground Entry Bundle
+        if (e.target.matches('#bundle-merch-essentials-keychain-options .option-btn')) {
+            dom.bundleMerchEssentialsKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleMerchEssentialsSelections.keychainOption = e.target.dataset.option;
+            updateBundleMerchEssentialsPrices();
             return;
         }
 
@@ -1032,6 +2114,20 @@
             toggleModal(document.getElementById(closeModalBtn.dataset.modalId), false);
             return;
         }
+    });
+
+    // Image navigation listeners in product detail
+    dom.prevImageBtn.addEventListener("click", () => {
+      currentImageIndex =
+        (currentImageIndex - 1 + currentDetailProduct.detailImages.length) %
+        currentDetailProduct.detailImages.length;
+      renderProductImages();
+    });
+
+    dom.nextImageBtn.addEventListener("click", () => {
+      currentImageIndex =
+        (currentImageIndex + 1) % currentDetailProduct.detailImages.length;
+      renderProductImages();
     });
 
     dom.openCartBtn.addEventListener("click", () =>
@@ -1045,10 +2141,9 @@
 
     dom.checkoutBtn.addEventListener("click", () => {
       if (cart.length > 0) {
-        toggleModal(dom.cartModal, false);
-        window.location.href = 'customer_data.html'; // Redirect to customer data page
-      } else {
-          showCustomAlert("Keranjang belanja Anda kosong. Silakan tambahkan produk terlebih dahulu.");
+        // Store cart data in sessionStorage before redirecting
+        sessionStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = 'customer-data.html'; // Redirect to customer data page
       }
     });
 
@@ -1061,22 +2156,239 @@
     const handlePromoClick = (e) => {
         const promoItem = e.target.closest(".product-overview-item, #main-promo-card");
         if (promoItem) {
-            const promoId = promoItem.dataset.promoId;
+            const promoId = parseInt(promoItem.dataset.promoId);
             toggleModal(dom.productOverviewModal, false); // Close overview modal
 
-            // Redirect to the generic bundle detail page with the bundle ID
-            window.location.href = `bundle_detail.html?id=${promoId}`;
+            const bundle = allProducts.find(p => p.id === promoId && p.isBundle);
+
+            if (!bundle) return; // Should not happen if data-promo-id is correct
+
+            // Reset selections for the opened bundle and populate options
+            if (promoId === 10) { // The Final Suit
+                bundleFinalSuitSelections = { jaslabSize: null, wsKpSize: null, wsMetalSize: null, keychainOption: null, stickerOption: null };
+                const jaslabProduct = allProducts.find(p => p.id === 1);
+                const wsKpProduct = allProducts.find(p => p.id === 2);
+                const wsMetalProduct = allProducts.find(p => p.id === 3);
+                const keychainProduct = allProducts.find(p => p.id === 6);
+                const stickerProduct = allProducts.find(p => p.id === 5);
+
+                dom.bundleFinalSuitJaslabSizeOptions.innerHTML = jaslabProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+                dom.bundleFinalSuitWsKpSizeOptions.innerHTML = wsKpProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+                dom.bundleFinalSuitWsMetalSizeOptions.innerHTML = wsMetalProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+                dom.bundleFinalSuitKeychainOptions.innerHTML = keychainProduct.options.map(option =>
+                    `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`
+                ).join("");
+                dom.bundleFinalSuitStickerOptions.innerHTML = stickerProduct.options.map(option =>
+                    `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`
+                ).join("");
+
+                updateBundleFinalSuitPrices(); // Call to update prices and button state
+                toggleModal(dom.bundleFinalSuitModal, true);
+
+            } else if (promoId === 11) { // Face Card Edition
+                bundleFaceCardSelections = { wsMetalSize: null, keychainOption: null, stickerOption: null };
+                const wsMetalProduct = allProducts.find(p => p.id === 3);
+                const keychainProduct = allProducts.find(p => p.id === 6);
+                const stickerProduct = allProducts.find(p => p.id === 5);
+
+                dom.bundleFaceCardWsMetalSizeOptions.innerHTML = wsMetalProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+                dom.bundleFaceCardKeychainOptions.innerHTML = keychainProduct.options.map(option =>
+                    `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`
+                ).join("");
+                dom.bundleFaceCardStickerOptions.innerHTML = stickerProduct.options.map(option =>
+                    `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`
+                ).join("");
+
+                updateBundleFaceCardPrices(); // Call to update prices and button state
+                toggleModal(dom.bundleFaceCardModal, true);
+
+            } else if (promoId === 12) { // Borderland Basic Kit
+                bundleBorderlandSelections = { jaslabSize: null, wsKpSize: null };
+                const jaslabProduct = allProducts.find(p => p.id === 1);
+                const wsKpProduct = allProducts.find(p => p.id === 2);
+
+                dom.bundleBorderlandJaslabSizeOptions.innerHTML = jaslabProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+                dom.bundleBorderlandWsKpSizeOptions.innerHTML = wsKpProduct.sizes.map(size =>
+                    `<button class="size-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-size="${size}">${size}</button>`
+                ).join("");
+
+                updateBundleBorderlandPrices(); // Call to update prices and button state
+                toggleModal(dom.bundleBorderlandModal, true);
+            } else if (promoId === 13) { // Ground Entry Bundle
+                bundleMerchEssentialsSelections = { keychainOption: null };
+                const keychainProduct = allProducts.find(p => p.id === 6);
+
+                dom.bundleMerchEssentialsKeychainOptions.innerHTML = keychainProduct.options.map(option =>
+                    `<button class="option-btn border px-4 py-2 rounded-lg font-semibold hover:bg-green-600 hover:text-white transition-colors" data-option="${option}">${option}</button>`
+                ).join("");
+
+                updateBundleMerchEssentialsPrices(); // Call to update prices and button state
+                toggleModal(dom.bundleMerchEssentialsModal, true);
+            }
         }
     };
 
     dom.productOverviewModal.addEventListener("click", handlePromoClick);
-    dom.mainPromoCardSimak.addEventListener("click", handlePromoClick); // Add listener to main SIMAK promo card
+    dom.mainPromoCardsContainer.addEventListener("click", handlePromoClick);
+
+
+    // Event listeners for bundle size/option selections
+    // The Final Suit
+    dom.bundleFinalSuitJaslabSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleFinalSuitJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.jaslabSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+        }
+    });
+    dom.bundleFinalSuitWsKpSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleFinalSuitWsKpSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.wsKpSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+        }
+    });
+    dom.bundleFinalSuitWsMetalSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleFinalSuitWsMetalSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.wsMetalSize = e.target.dataset.size;
+            updateBundleFinalSuitPrices();
+        }
+    });
+    dom.bundleFinalSuitKeychainOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.option-btn')) {
+            dom.bundleFinalSuitKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.keychainOption = e.target.dataset.option;
+            updateBundleFinalSuitPrices();
+        }
+    });
+    dom.bundleFinalSuitStickerOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.option-btn')) {
+            dom.bundleFinalSuitStickerOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFinalSuitSelections.stickerOption = e.target.dataset.option;
+            updateBundleFinalSuitPrices();
+        }
+    });
+
+    // Face Card Edition
+    dom.bundleFaceCardWsMetalSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleFaceCardWsMetalSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.wsMetalSize = e.target.dataset.size;
+            updateBundleFaceCardPrices();
+        }
+    });
+    dom.bundleFaceCardKeychainOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.option-btn')) {
+            dom.bundleFaceCardKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.keychainOption = e.target.dataset.option;
+            updateBundleFaceCardPrices();
+        }
+    });
+    dom.bundleFaceCardStickerOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.option-btn')) {
+            dom.bundleFaceCardStickerOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleFaceCardSelections.stickerOption = e.target.dataset.option;
+            updateBundleFaceCardPrices();
+        }
+    });
+
+    // Borderland Basic Kit
+    dom.bundleBorderlandJaslabSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleBorderlandJaslabSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleBorderlandSelections.jaslabSize = e.target.dataset.size;
+            updateBundleBorderlandPrices();
+        }
+    });
+    dom.bundleBorderlandWsKpSizeOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.size-btn')) {
+            dom.bundleBorderlandWsKpSizeOptions.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleBorderlandSelections.wsKpSize = e.target.dataset.size;
+            updateBundleBorderlandPrices();
+        }
+    });
+
+    // Ground Entry Bundle
+    dom.bundleMerchEssentialsKeychainOptions.addEventListener('click', (e) => {
+        if (e.target.matches('.option-btn')) {
+            dom.bundleMerchEssentialsKeychainOptions.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove("bg-green-600", "text-white"));
+            e.target.classList.add("bg-green-600", "text-white");
+            bundleMerchEssentialsSelections.keychainOption = e.target.dataset.option;
+            updateBundleMerchEssentialsPrices();
+        }
+    });
+
+
+    // Handle adding the new bundles to cart
+    dom.addBundleFinalSuitToCartBtn.addEventListener('click', () => {
+        const bundle = allProducts.find(b => b.id === 10);
+        if (bundle.calculatedPrice !== undefined && bundle.calculatedPrice > 0) { // Check if selections are complete and price is calculated
+            addToCart(bundle);
+            toggleModal(dom.bundleFinalSuitModal, false);
+            toggleModal(dom.cartModal, true);
+        } else {
+            showCustomAlert("Harap lengkapi semua pilihan untuk bundle ini.");
+        }
+    });
+
+    dom.addBundleFaceCardToCartBtn.addEventListener('click', () => {
+        const bundle = allProducts.find(b => b.id === 11);
+        if (bundle.calculatedPrice !== undefined && bundle.calculatedPrice > 0) {
+            addToCart(bundle);
+            toggleModal(dom.bundleFaceCardModal, false);
+            toggleModal(dom.cartModal, true);
+        } else {
+            showCustomAlert("Harap lengkapi semua pilihan untuk bundle ini.");
+        }
+    });
+
+    dom.addBundleBorderlandToCartBtn.addEventListener('click', () => {
+        const bundle = allProducts.find(b => b.id === 12);
+        if (bundle.calculatedPrice !== undefined && bundle.calculatedPrice > 0) {
+            addToCart(bundle);
+            toggleModal(dom.bundleBorderlandModal, false);
+            toggleModal(dom.cartModal, true);
+        } else {
+            showCustomAlert("Harap lengkapi semua pilihan untuk bundle ini.");
+        }
+    });
+
+    dom.addBundleMerchEssentialsToCartBtn.addEventListener('click', () => {
+        const bundle = allProducts.find(b => b.id === 13);
+        if (bundle.calculatedPrice !== undefined && bundle.calculatedPrice > 0) {
+            addToCart(bundle);
+            toggleModal(dom.bundleMerchEssentialsModal, false);
+            toggleModal(dom.cartModal, true);
+        } else {
+            showCustomAlert("Harap lengkapi semua pilihan untuk bundle ini.");
+        }
+    });
 
 
     // Search functionality
     dom.searchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        // Filter only products (exclude bundles from main product grid search)
         filteredProducts = allProducts.filter(product =>
             !product.isBundle && product.name.toLowerCase().includes(searchTerm)
         );
@@ -1084,29 +2396,10 @@
     });
 
     // Initial setup when page loads
-    loadCart(); // Load cart from localStorage
     updateUI();
-    // If Cloudinary is disabled, ensure the finish payment button is always active (this is now irrelevant for index.html)
-    // toggleModal(dom.productOverviewModal, true); // Show product overview modal on load
-
-    // Check for hash in URL to open cart modal on page load
-    if (window.location.hash === '#cart') {
-        toggleModal(dom.cartModal, true);
-        // Clear the hash to prevent it from reopening on refresh
-        history.replaceState(null, null, ' ');
-    }
-
-    // New: Handle browser back/forward cache to ensure cart is always up-to-date
-    window.addEventListener('pageshow', (event) => {
-        if (event.persisted) {
-            // Page was restored from BFCache, reload cart and update UI
-            loadCart();
-            updateUI();
-            // Ensure product overview modal is closed if it was open due to BFCache
-            toggleModal(dom.productOverviewModal, false);
-        }
-    });
-   });
+    // Initially show product overview modal with new bundles
+    toggleModal(dom.productOverviewModal, true); 
+  });
   </script>
  </body>
 </html>
